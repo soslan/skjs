@@ -19,6 +19,10 @@ element.init = function(arg1, args){
   var classes = args.classes || args.className || args.class;
   var attributes = args.attributes || args.attr;
 
+  if( typeof args.id === "string" ) {
+    arg1.id = args.id;
+  }
+
   if ( typeof classes === "string" ) {
     classes.split( " " ).forEach(function( className ) {
       arg1.classList.add( className );
