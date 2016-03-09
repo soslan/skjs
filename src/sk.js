@@ -1,11 +1,17 @@
-function apply(arg1, args) {
-  element.init(arg1, args);
-}
-
 function element( args ) {
   args = args || {};
-  var elem = document.createElement( args.tag || "div" );
-  return element.init(elem, args);
+  if(typeof args.query === 'string'){
+    var elem = document.querySelector(args.query);
+  }
+  else {
+    var elem = document.createElement( args.tag || "div" );
+  }
+  if(elem){
+    return element.init(elem, args);
+  }
+  else{
+    return null;
+  }
 };
 
 element.init = function(arg1, args){
@@ -62,6 +68,15 @@ element.init = function(arg1, args){
 
   return arg1;
 };
+
+function apply(arg1, args) {
+  element.init(arg1, args);
+}
+
+function query(arg1, args){
+  args.query = arg1;
+  return element(args);
+}
 
 function span(args){
   args = args || {};
