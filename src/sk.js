@@ -4,7 +4,12 @@ function element( args ) {
     var elem = document.querySelector(args.query);
   }
   else {
-    var elem = document.createElement( args.tag || "div" );
+    if(typeof args.namespace === 'string'){
+      var elem = document.createElementNS( args.namespace, args.tag || "div" );
+    }
+    else{
+      var elem = document.createElement( args.tag || "div" );
+    }
   }
   if(elem){
     return element.init(elem, args);
@@ -39,7 +44,7 @@ element.init = function(arg1, args){
     parent = document.querySelector( parent );
   }
 
-  if ( parent instanceof HTMLElement ) {
+  if ( parent instanceof Node ) {
     parent.appendChild( arg1 );
   }
 
@@ -91,5 +96,14 @@ function span(args){
 function div(args){
   args = args || {};
   args.tag = 'div';
+  return element(args);
+}
+
+function svg(args){
+  args = args || {};
+  args.namespace = 'http://www.w3.org/2000/svg';
+  if(args.tag == null){
+    args.tag = 'svg';
+  }
   return element(args);
 }
