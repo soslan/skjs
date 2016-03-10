@@ -107,3 +107,9 @@ function svg(args){
   }
   return element(args);
 }
+
+function path(args){
+  args = args || {};
+  args.tag = 'path';
+  return svg(args);
+}
