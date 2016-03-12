@@ -94,3 +94,55 @@ Model.prototype.syncWithStorage = function(item, storage){
     self.value = e.newValue;
   });
 }
+
+function withAnyDo(value, callback){
+  if(value instanceof Model){
+    value.listen(function(val){
+      callback(val);
+    });
+  }
+  else{
+    if (typeof callback === "function"){
+      callback(value);
+    }
+  }
+}
+
+function withNumberDo(value, callback){
+  if(value instanceof Model){
+    value.listen(function(val){
+      callback(Number(val));
+    });
+  }
+  else{
+    if (typeof callback === "function"){
+      callback(Number(value));
+    }
+  }
+}
+
+function withStringDo(value, callback){
+  if(value instanceof Model){
+    value.listen(function(val){
+      callback(String(val));
+    });
+  }
+  else{
+    if (typeof callback === "function"){
+      callback(String(value));
+    }
+  }
+}
+
+function withBooleanDo(value, callback){
+  if(value instanceof Model){
+    value.listen(function(val){
+      callback(Boolean(val));
+    });
+  }
+  else{
+    if (typeof callback === "function"){
+      callback(Boolean(value));
+    }
+  }
+}
