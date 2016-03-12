@@ -35,6 +35,9 @@ Object.defineProperty(Model.prototype, 'value', {
     for (var i in this.filters){
       candidate = this.filters[i](candidate);
     }
+    if(this.valueCore === candidate){
+      return;
+    }
     this.valueCore = candidate;
     this.listeners.forEach(function(handler){
       handler(self.value);
@@ -77,4 +80,17 @@ Model.prototype.setAsClass = function(elem){
       elem.classList.add(String(this.value));
     });
   }
+}
+
+Model.prototype.syncWithStorage = function(item, storage){
+  var self = this;
+  storage = storage || localStorage;
+  this.value = storage.getItem(item);
+  this.listen(function(val){
+    storage.setItem(item, String(val));
+  });
+  window.addEventListener('storage', function(e){
+    console.log("STORAGE EVENT", e);
+    self.value = e.newValue;
+  });
 }
