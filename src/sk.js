@@ -78,6 +78,76 @@ element.init = function(arg1, args){
   return arg1;
 };
 
+element.style = function(elem, arg1, arg2){
+  var args;
+  if(typeof arg1 === "string"){
+    args = {};
+    args[arg1] = arg2;
+  }
+  else if(typeof arg1 === "object"){
+    args = arg1;
+  }
+  else{
+    args = {};
+  }
+
+  for (var i in args){
+    element.setOneStyle(elem, i, args[i]);
+  }
+};
+
+element.setOneStyle = function(elem, property, value){
+  if(element.styleMods[property] != null){
+    var mod = element.styleMods[property];
+    var properties = [];
+    property = mod.property || property;
+    properties.push(property);
+    // Add prefixes if needed
+    if(mod.prefixed){
+      var capProperty = property.charAt(0).toUpperCase() + property.slice(1);
+      properties.push('webkit' + capProperty);
+      properties.push('moz' + capProperty);
+      properties.push('ms' + capProperty);
+    }
+    withStringDo(value, function(val){
+      if(typeof mod.filter === "function"){
+        val = mod.filter(val);
+      }
+      for(var j in properties){
+        elem.style[properties[j]] = val;
+      }
+    });
+  }
+  else{
+    withStringDo(value, function(val){
+      elem.style[property] = val;
+    });
+  }
+}
+
+element.styleMods = {};
+
+element.addStyleMod =  function(modName, mod){
+  element.styleMods[modName] = mod;
+};
+
+element.addStyleMod('flex', {
+  prefixed: true,
+});
+
+element.addStyleMod('transform', {
+  prefixed: true,
+});
+
+element.addStyleMod('translateX', {
+  prefixed: true,
+  property: 'transform',
+  filter: function(val){
+    console.log("Filtering", val);
+    return 'translateX(' + val + 'px)';
+  }
+});
+
 function apply(arg1, args) {
   element.init(arg1, args);
 }
