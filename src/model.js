@@ -45,6 +45,32 @@ Object.defineProperty(Model.prototype, 'value', {
   },
 });
 
+Model.prototype.true = function(listener){
+  if(typeof listener === "function"){
+    this.listen(function(val){
+      if(Boolean(val)){
+        listener(Boolean(val));
+      }
+    });
+  }
+  else{
+    this.value = true;
+  }
+}
+
+Model.prototype.false = function(listener){
+  if(typeof listener === "function"){
+    this.listen(function(val){
+      if(!Boolean(val)){
+        listener(Boolean(val));
+      }
+    });
+  }
+  else{
+    this.value = false;
+  }
+}
+
 Model.prototype.switchClasses = function(elem, classes){
   if(typeof classes === "string"){
     classes = {
