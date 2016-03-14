@@ -3,10 +3,24 @@ function model(args){
 }
 
 function Model(args){
-  args = args || {};
   this.valueCore;
   this.listeners = [];
   this.filters = [];
+
+  this.init(args);
+}
+
+Model.prototype.init = function(args){
+  args = args || {};
+  if(args.value !== undefined){
+    this.value = args.value;
+  }
+  if(typeof args.listener === "function"){
+    this.listen(args.listener);
+  }
+  if(typeof args.filter === "function"){
+    this.filter(args.filter);
+  }
 }
 
 // TODO: Decide whether to add onchange event or not.
