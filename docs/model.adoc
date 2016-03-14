@@ -1,0 +1,41 @@
+Docmentation for Model type
+===========================
+Soslan Khubulov <soslanx@gmail.com>
+
+Model
+-----
+
+Model is an object representing some value.
+
+Methods
+~~~~~~~
+
+==== listen()
+
++Model.listen(_function_ listener [, _boolean_ silence])+
+
+Registers _listener_ function to be called on every value change and, if
+_silence_ is not `true`, on the listener registration too.
+
+//.Arguments:
+[.arguments]
+_function_ listener::
+    A function to be called every time model value changes. If _silence_ 	is
+    false then _listener_ is called on its registration too.
+
+_boolean_ silence::
+    Specifies whether _listener_ should be called after its registration or not.
+
+==== filter()
+
++Model.filter(_function_ filter)+
+
+Registers _filter_ function for filtering the model value.
+
+==== true()
+
+==== false()
+
+==== switchClasses()
+
+==== syncWithStorage()
