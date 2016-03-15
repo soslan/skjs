@@ -135,6 +135,27 @@ Model.prototype.syncWithStorage = function(item, storage){
   });
 }
 
+// Experimental
+Model.prototype.syncWithScrollTopP = function(elem){
+  var self = this;
+  if(elem instanceof Element){
+    this.value = elem.scrollTop / (elem.scrollHeight - elem.clientHeight);
+
+    elem.addEventListener('scroll', function(e){
+      self.value = elem.scrollTop / (elem.scrollHeight - elem.clientHeight);
+    });
+  }
+  else if(elem instanceof Document || elem === window){
+    elem = document;
+    var body = elem.body;
+    this.value = body.scrollTop / (body.scrollHeight - window.innerHeight);
+
+    elem.addEventListener('scroll', function(e){
+      self.value = body.scrollTop / (body.scrollHeight - window.innerHeight);
+    });
+  }
+}
+
 function withAnyDo(value, callback){
   if(value instanceof Model){
     value.listen(function(val){
