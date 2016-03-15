@@ -54,10 +54,9 @@ element.init = function(arg1, args){
     }
   }
 
+  args.style = args.styles || args.style;
   if ( typeof args.style === "object" ) {
-    for ( var i in args.style ) {
-      arg1.style[ i ] = args.style[ i ];
-    }
+    element.style(arg1, args.style);
   }
 
   if ( typeof args.action === "function" ) {
@@ -127,9 +126,55 @@ element.setOneStyle = function(elem, property, value){
 
 element.styleMods = {};
 
+element.lengthUnits = ['px', 'em', 'pc', 'mm', 'in', 'ex', 'ch', 'rem', 'cm', 'pt'];
+
 element.addStyleMod =  function(modName, mod){
-  element.styleMods[modName] = mod;
+  if(typeof mod.values === 'string'){
+    mod.values.split(' ').forEach(function(v){
+      if(v === '<length>'){
+        element.lengthUnits.forEach(function(unit){
+          var capitalizedUnit = unit.charAt(0).toUpperCase() + unit.slice(1);
+          var unitModName = modName + capitalizedUnit;
+          element.styleMods[unitModName] = {
+            prefixed: mod.prefixed,
+            filter: function(val){
+              return String(val) + unit;
+            },
+            property: mod.property || modName,
+          }
+        });
+      }
+      else if (v === '<percentage>'){
+        element.styleMods[modName+'Pct'] = {
+          prefixed: mod.prefixed,
+          filter: function(val){
+            return String(val) + '%';
+          },
+          property: mod.property || modName,
+        }
+        element.styleMods[modName+'P'] = {
+          prefixed: mod.prefixed,
+          filter: function(val){
+            return (Number(val) * 100) + '%';
+          },
+          property: mod.property || modName,
+        }
+      }
+    });
+  }
+  else{
+    element.styleMods[modName] = mod;
+  }
+
 };
+
+element.addStyleMod('height', {
+  values: '<length> <percentage>',
+});
+
+element.addStyleMod('width', {
+  values: '<length> <percentage>',
+});
 
 element.addStyleMod('flex', {
   prefixed: true,
