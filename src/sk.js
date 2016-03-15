@@ -138,7 +138,12 @@ element.addStyleMod =  function(modName, mod){
           element.styleMods[unitModName] = {
             prefixed: mod.prefixed,
             filter: function(val){
-              return String(val) + unit;
+              if(isNaN(val)){
+                return String(val);
+              }
+              else{
+                return String(val) + unit;
+              }
             },
             property: mod.property || modName,
           }
@@ -148,14 +153,24 @@ element.addStyleMod =  function(modName, mod){
         element.styleMods[modName+'Pct'] = {
           prefixed: mod.prefixed,
           filter: function(val){
-            return String(val) + '%';
+            if(isNaN(val)){
+              return String(val);
+            }
+            else{
+              return String(val) + '%';
+            }
           },
           property: mod.property || modName,
         }
         element.styleMods[modName+'P'] = {
           prefixed: mod.prefixed,
           filter: function(val){
-            return (Number(val) * 100) + '%';
+            if(isNaN(val)){
+              return String(val);
+            }
+            else{
+              return (100 * val) + '%';
+            }
           },
           property: mod.property || modName,
         }
