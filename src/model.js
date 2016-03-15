@@ -10,6 +10,40 @@ function Model(args){
   this.init(args);
 }
 
+Model.prototype.set = function(arg1, filter){
+  var self;
+  if(arg1 instanceof Model){
+    arg1.listen(function(val){
+      if(typeof filter === "function"){
+        val = filter(val);
+      }
+      self.value = val;
+    });
+  }
+  else{
+    self.value = arg1;
+  }
+}
+
+Model.prototype.get = function(){
+  return this.value;
+}
+
+Model.prototype.sync = function(arg1, upstreamFilter, downstreamFilter){
+  if(arg1 instanceof Model){
+    this.set(arg1, upstreamFilter);
+    this.listen(function(val){
+      if(typeof downstreamFilter === "function"){
+        val = downstreamFilter(val);
+      }
+      arg1.value = val;
+    });
+  }
+  else{
+    this.set(arg1, upstreamFilter);
+  }
+}
+
 Model.prototype.init = function(args){
   args = args || {};
   if(args.value !== undefined){
