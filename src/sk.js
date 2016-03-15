@@ -180,16 +180,40 @@ element.addStyleMod =  function(modName, mod){
   else{
     element.styleMods[modName] = mod;
   }
-
 };
 
-element.addStyleMod('height', {
-  values: '<length> <percentage>',
-});
+element.addFourSideProperty = function(propName, mod){
+  ['Top', 'Right', 'Bottom', 'Left'].forEach(function(side){
+    element.addStyleMod(propName+side, mod);
+  });
+};
 
-element.addStyleMod('width', {
-  values: '<length> <percentage>',
-});
+// These take about 5ms of execution time.
+// TODO: optimize
+element.addStyleMod('height', {values: '<length> <percentage>'});
+element.addStyleMod('minHeight', {values: '<length> <percentage>'});
+element.addStyleMod('maxHeight', {values: '<length> <percentage>'});
+
+element.addStyleMod('width', {values: '<length> <percentage>'});
+element.addStyleMod('minWidth', {values: '<length> <percentage>'});
+element.addStyleMod('maxWidth', {values: '<length> <percentage>'});
+
+element.addStyleMod('fontSize', {values: '<length> <percentage>'});
+
+element.addFourSideProperty('margin', {values: '<length> <percentage>'});
+element.addFourSideProperty('padding', {values: '<length> <percentage>'});
+
+element.addStyleMod('outlineWidth', {values: '<length>'});
+element.addStyleMod('borderWidth', {values: '<length>'});
+element.addStyleMod('borderTopWidth', {values: '<length>'});
+element.addStyleMod('borderRightWidth', {values: '<length>'});
+element.addStyleMod('borderBottomWidth', {values: '<length>'});
+element.addStyleMod('borderLeftWidth', {values: '<length>'});
+
+element.addStyleMod('top', {values: '<length> <percentage>'});
+element.addStyleMod('right', {values: '<length> <percentage>'});
+element.addStyleMod('bottom', {values: '<length> <percentage>'});
+element.addStyleMod('left', {values: '<length> <percentage>'});
 
 element.addStyleMod('flex', {
   prefixed: true,
