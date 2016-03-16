@@ -215,9 +215,17 @@ element.addStyleMod('right', {values: '<length> <percentage>'});
 element.addStyleMod('bottom', {values: '<length> <percentage>'});
 element.addStyleMod('left', {values: '<length> <percentage>'});
 
-element.addStyleMod('flex', {
-  prefixed: true,
-});
+element.addStyleMod('flex', {prefixed: true});
+element.addStyleMod('flexGrow', {prefixed: true});
+element.addStyleMod('flexShrink', {prefixed: true});
+element.addStyleMod('flexDirection', {prefixed: true});
+element.addStyleMod('flexFlow', {prefixed: true});
+element.addStyleMod('flexWrap', {prefixed: true});
+element.addStyleMod('justifyContent', {prefixed: true});
+element.addStyleMod('order', {prefixed: true});
+element.addStyleMod('alignSelf', {prefixed: true});
+element.addStyleMod('alignItems', {prefixed: true});
+element.addStyleMod('alignContent', {prefixed: true});
 
 element.addStyleMod('transform', {
   prefixed: true,
