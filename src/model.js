@@ -11,32 +11,59 @@ function Model(args){
 }
 
 Model.prototype.set = function(arg1, filter){
-  var self;
+  var self = this;
   if(arg1 instanceof Model){
-    arg1.listen(function(val){
+    arg1.listen(function(val, upstreams){
+      if(upstreams && upstreams.indexOf(self) !== -1){
+        return;
+      }
       if(typeof filter === "function"){
         val = filter(val);
       }
-      self.value = val;
+      self.setValue(val, upstreams);
     });
   }
   else{
-    self.value = arg1;
+    self.setValue(arg1);
   }
 }
 
+Model.prototype.setValue = function(val, upstreams){
+  var self = this;
+  for (var i in this.filters){
+    val = this.filters[i](val);
+  }
+  if(this.valueCore === val){
+    return;
+  }
+  this.valueCore = val;
+  if(upstreams == null){
+    upstreams = [self];
+  }
+  else{
+    upstreams.push(self);
+  }
+  this.listeners.forEach(function(handler){
+    handler(self.value, upstreams);
+  });
+}
+
 Model.prototype.get = function(){
-  return this.value;
+  return this.valueCore;
 }
 
 Model.prototype.sync = function(arg1, upstreamFilter, downstreamFilter){
   if(arg1 instanceof Model){
     this.set(arg1, upstreamFilter);
-    this.listen(function(val){
+    //arg1.set(this, downstreamFilter);
+    this.listen(function(val, upstreams){
+      if(upstreams && upstreams.indexOf(arg1) !== -1){
+        return;
+      }
       if(typeof downstreamFilter === "function"){
         val = downstreamFilter(val);
       }
-      arg1.value = val;
+      arg1.setValue(val, upstreams);
     });
   }
   else{
@@ -80,20 +107,10 @@ Model.prototype.filter = function(handler){
 
 Object.defineProperty(Model.prototype, 'value', {
   get: function(){
-    return this.valueCore;
+    return this.get();
   },
-  set: function(candidate){
-    var self = this;
-    for (var i in this.filters){
-      candidate = this.filters[i](candidate);
-    }
-    if(this.valueCore === candidate){
-      return;
-    }
-    this.valueCore = candidate;
-    this.listeners.forEach(function(handler){
-      handler(self.value);
-    });
+  set: function(val){
+    this.set(val)
   },
 });
 
