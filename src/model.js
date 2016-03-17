@@ -57,13 +57,17 @@ Model.prototype.init = function(args){
   }
 }
 
-// TODO: Decide whether to add onchange event or not.
-Model.prototype.listen = function(handler, silence){
+Model.prototype.listen = function(handler){
   if(typeof handler === 'function'){
     this.listeners.push(handler);
-    if(!silence){
-      handler(this.value);
-    }
+    handler(this.value);
+  }
+};
+Model.prototype.onvalue = Model.prototype.listen;
+
+Model.prototype.onchange = function(handler){
+  if(typeof handler === 'function'){
+    this.listeners.push(handler);
   }
 };
 Model.prototype.onvalue = Model.prototype.listen;
