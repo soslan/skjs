@@ -1,14 +1,15 @@
 function element( args ) {
   args = args || {};
+  var w = args.window || window;
   if(typeof args.query === 'string'){
-    var elem = document.querySelector(args.query);
+    var elem = w.document.querySelector(args.query);
   }
   else {
     if(typeof args.namespace === 'string'){
-      var elem = document.createElementNS( args.namespace, args.tag || "div" );
+      var elem = w.document.createElementNS( args.namespace, args.tag || "div" );
     }
     else{
-      var elem = document.createElement( args.tag || "div" );
+      var elem = w.document.createElement( args.tag || "div" );
     }
   }
   if(elem){
@@ -20,6 +21,7 @@ function element( args ) {
 };
 
 element.init = function(arg1, args){
+  var w = args.window || window;
   var parent = args.parent || args.appendTo;
   var classes = args.classes || args.className || args.class;
   var attributes = args.attributes || args.attr;
@@ -34,7 +36,7 @@ element.init = function(arg1, args){
     });
   }
 
-  if ( args.content instanceof Node ) {
+  if ( args.content instanceof w.Node ) {
     arg1.appendChild( args.content );
   } else if ( args.content != null ) {
     withStringDo( args.content, function(val){
@@ -43,10 +45,9 @@ element.init = function(arg1, args){
   }
 
   if ( typeof parent === "string" ) {
-    parent = document.querySelector( parent );
+    parent = w.document.querySelector( parent );
   }
-
-  if ( parent instanceof Node ) {
+  if ( parent instanceof w.Node ) {
     parent.appendChild( arg1 );
   }
 
