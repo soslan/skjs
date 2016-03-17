@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>skjs sandbox</title>
+
+	<style type="text/css">
+		#splash{
+			background: whitesmoke;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			transition: opacity .5s;
+			z-index: 999999;
+		}
+
+		#splash-title{
+			color: blue;
+			padding:15px;
+			font-size: 130%;
+		}
+
+		#splash-status {
+			color: #ccc;
+			font-size: 85%;
+			padding-top: 10px;
+		}
+
+		#progress-bar-wrap{
+			width: 200px;
+			position: relative;
+			height: 5px;
+			overflow: hidden;
+			background-color: white;
+		}
+
+		#progress-bar{
+			width: 0%;
+			position: relative;
+			height: 100%;
+			background-color: blue;
+			transition: width .2s;
+			transition-timing-function: linear;
+		}
+
+		#progress-bar.indeterminate{
+			animation-name: indeterminate;
+			animation-duration: .75s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+		}
+
+		@keyframes indeterminate{
+			from {
+				-webkit-transform: translateX(-50px);
+			}
+
+			to {
+				-webkit-transform: translateX(200px);
+			}
+		}
+
+		#progress-bar.finished,
+		#progress-bar.finished.indeterminate{
+			animation: none;
+			width: 100%;
+			//transition: none;
+		}
+
+		/* For customization */
+		#splash{
+			background-color: white;
+		}
+
+		#progress-bar-wrap{
+			background-color: whitesmoke;
+			height: 5px;
+		}
+
+		#progress-bar{
+			background-color: red;
+		}
+
+		#progress-bar.indeterminate{
+			width: 50px;
+		}
+	</style>
+	<link rel="stylesheet" href="assets/codemirror.css" />
+	<style type="text/css">
+		#sandbox{
+			position: fixed;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			display: flex;
+		}
+
+		#sandbox > div{
+			padding: 5px;
+			width:50%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#sandbox > div > div{
+			flex:1;
+			position: relative;
+		}
+
+		.CodeMirror{
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 100%;
+		}
+
+		h3{
+			border-bottom: 1px dotted black;
+			margin: 0;
+		}
+
+		iframe{
+			border: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="splash">
+		<div id="splash-title">SKJS</div>
+		<div id="progress-bar-wrap"><div id="progress-bar" class="indeterminate"></div></div>
+		<div id="splash-status" hidden>STATUS</div>
+	</div>
+
+	<script type="text/javascript" src="assets/codemirror.js"></script>
+	<script type="text/javascript" src="assets/javascript.js"></script>
+	<script type="text/javascript" src="../src/model.js"></script>
+	<script type="text/javascript" src="../src/sk.js"></script>
+	<script type="text/javascript">
+		var splashElem = document.querySelector("#splash");
+
+		splashElem.addEventListener('transitionend', function(e){
+			if(e.propertyName === 'opacity'){
+				splashElem.style.display = 'none';
+			}
+		});
+
+		var main = div({
+			parent: document.body,
+			id: 'sandbox',
+		});
+		var source = div({
+			parent: main,
+		});
+		var result = div({
+			parent: main,
+		});
+
+		element({
+			parent: source,
+			tag: 'h3',
+			content: 'Code',
+		});
+
+		element({
+			parent: result,
+			tag: 'h3',
+			content: 'Result',
+		});
+
+		var cmCont = div({
+			parent: source,
+		});
+
+		var frame = element({
+			tag: 'iframe',
+			parent: result,
+		});
+
+		var cm = CodeMirror(cmCont, {
+	      mode: 'javascript',
+	      indentWithTabs: false,
+	      tabSize: 2,
+	      lineNumbers: true,
+	      autoRefresh:true,
+	      //theme: 'neat',
+	    });
+
+	    cm.setValue(localStorage.getItem('skjs_sandbox_code') || '');
+
+	    cm.on('change', function(){
+	    	frame.contentWindow.document.open();
+	    	frame.contentWindow.document.write('<html><body></body></html>');
+	    	var modelScript = element({
+	    		window: frame.contentWindow,
+	    		tag: 'script',
+	    		parent: frame.contentWindow.document.body,
+	    		attr: {
+	    			src: '../src/model.js',
+	    		}
+	    	});
+	    	var skScript = element({
+	    		window: frame.contentWindow,
+	    		tag: 'script',
+	    		parent: frame.contentWindow.document.body,
+	    		attr: {
+	    			src: '../src/sk.js',
+	    		}
+	    	});
+	    	var script = element({
+	    		window: frame.contentWindow,
+	    		tag: 'script',
+	    		parent: frame.contentWindow.document.body,
+	    	});
+	    	script.innerHTML = cm.getValue();
+	    	localStorage.setItem('skjs_sandbox_code', cm.getValue());
+	    	cm.refresh();
+	    });
+		
+	</script>
+	<script type="text/javascript">
+		setTimeout(function(){
+			document.querySelector("#progress-bar").classList.add('finished');
+			splashElem.style.opacity = 0;
+
+		}, 0);
+	</script>
+</body>
+</html>
