@@ -34,10 +34,12 @@ element.init = function(arg1, args){
     });
   }
 
-  if ( typeof args.content === "string" || typeof args.content === "number" ) {
-    arg1.textContent = args.content;
-  } else if ( args.content instanceof Node ) {
+  if ( args.content instanceof Node ) {
     arg1.appendChild( args.content );
+  } else if ( args.content != null ) {
+    withStringDo( args.content, function(val){
+      arg1.textContent = val;
+    });
   }
 
   if ( typeof parent === "string" ) {
