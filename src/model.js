@@ -10,25 +10,34 @@ function Model(args){
   this.init(args);
 }
 
-Model.prototype.set = function(arg1, filter){
+Model.prototype.set = function(arg1, arg2, arg3){
   var self = this;
+  var customUpstream, filter;
+  if(typeof arg2 === "function"){
+    filter = arg2;
+    customUpstream = arg3;
+  }
+  else {
+    customUpstream = arg2;
+  }
   if(arg1 instanceof Model){
-    arg1.listen(function(val, upstreams){
-      if(upstreams && upstreams.indexOf(self) !== -1){
+    arg1.listen(function(val, upstream){
+      upstream = upstream.concat(customUpstream);
+      if(upstream && upstream.indexOf(self) !== -1){
         return;
       }
       if(typeof filter === "function"){
         val = filter(val);
       }
-      self.setValue(val, upstreams);
+      self.setValue(val, upstream);
     });
   }
   else{
-    self.setValue(arg1);
+    self.setValue(arg1, upstream);
   }
 }
 
-Model.prototype.setValue = function(val, upstreams){
+Model.prototype.setValue = function(val, upstream){
   var self = this;
   for (var i in this.filters){
     val = this.filters[i](val);
@@ -37,14 +46,14 @@ Model.prototype.setValue = function(val, upstreams){
     return;
   }
   this.valueCore = val;
-  if(upstreams == null){
-    upstreams = [self];
+  if(upstream == null){
+    upstream = [self];
   }
   else{
-    upstreams.push(self);
+    upstream.push(self);
   }
   this.listeners.forEach(function(handler){
-    handler(self.value, upstreams);
+    handler(self.value, upstream);
   });
 }
 
@@ -56,14 +65,14 @@ Model.prototype.sync = function(arg1, upstreamFilter, downstreamFilter){
   if(arg1 instanceof Model){
     this.set(arg1, upstreamFilter);
     //arg1.set(this, downstreamFilter);
-    this.listen(function(val, upstreams){
-      if(upstreams && upstreams.indexOf(arg1) !== -1){
+    this.listen(function(val, upstream){
+      if(upstream && upstream.indexOf(arg1) !== -1){
         return;
       }
       if(typeof downstreamFilter === "function"){
         val = downstreamFilter(val);
       }
-      arg1.setValue(val, upstreams);
+      arg1.setValue(val, upstream);
     });
   }
   else{
