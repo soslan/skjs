@@ -33,7 +33,7 @@ Model.prototype.set = function(arg1, arg2, arg3){
     });
   }
   else{
-    self.setValue(arg1, upstream);
+    self.setValue(arg1, customUpstream);
   }
 }
 
@@ -96,7 +96,7 @@ Model.prototype.init = function(args){
 Model.prototype.listen = function(handler){
   if(typeof handler === 'function'){
     this.listeners.push(handler);
-    handler(this.value);
+    handler(this.get(), [this]);
   }
 };
 Model.prototype.onvalue = Model.prototype.listen;
@@ -119,7 +119,7 @@ Object.defineProperty(Model.prototype, 'value', {
     return this.get();
   },
   set: function(val){
-    this.set(val)
+    this.set(val);
   },
 });
 
