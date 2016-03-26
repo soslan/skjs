@@ -110,6 +110,7 @@ element.setOneStyle = function(elem, property, value){
       properties.push('webkit' + capProperty);
       properties.push('moz' + capProperty);
       properties.push('ms' + capProperty);
+      properties.push('o' + capProperty);
     }
     withStringDo(value, function(val){
       if(typeof mod.filter === "function"){
@@ -131,9 +132,9 @@ element.styleMods = {};
 
 element.lengthUnits = ['px', 'em', 'pc', 'mm', 'in', 'ex', 'ch', 'rem', 'cm', 'pt'];
 
-element.addStyleMod =  function(modName, mod){
-  if(typeof mod.values === 'string'){
-    mod.values.split(' ').forEach(function(v){
+element.processModValues =  function(modName, mod){
+  if(mod.values != null){
+    mod.values.forEach(function(v){
       if(v === '<length>'){
         element.lengthUnits.forEach(function(unit){
           var capitalizedUnit = unit.charAt(0).toUpperCase() + unit.slice(1);
@@ -180,68 +181,52 @@ element.addStyleMod =  function(modName, mod){
       }
     });
   }
-  else{
-    element.styleMods[modName] = mod;
-  }
 };
 
-element.addFourSideProperty = function(propName, mod){
-  ['Top', 'Right', 'Bottom', 'Left'].forEach(function(side){
-    element.addStyleMod(propName+side, mod);
+element.setValueUnits = function(units, properties){
+  properties.forEach(function(property){
+    if(element.styleMods[property] == null){
+      element.styleMods[property] = {};
+    }
+    element.styleMods[property]['values'] = units;
   });
-};
+}
 
-// These take about 5ms of execution time.
-// TODO: optimize
-element.addStyleMod('height', {values: '<length> <percentage>'});
-element.addStyleMod('minHeight', {values: '<length> <percentage>'});
-element.addStyleMod('maxHeight', {values: '<length> <percentage>'});
+element.setPrefixed = function(properties){
+  properties.forEach(function(property){
+    if(element.styleMods[property] == null){
+      element.styleMods[property] = {};
+    }
+    element.styleMods[property]['prefixed'] = true;
+  });
+}
 
-element.addStyleMod('width', {values: '<length> <percentage>'});
-element.addStyleMod('minWidth', {values: '<length> <percentage>'});
-element.addStyleMod('maxWidth', {values: '<length> <percentage>'});
+element.setPrefixed(['flex', 'flexGrow', 'flexShrink', 'flexDirection',
+                    'flexFlow', 'flexWrap', 'justifyContent', 'order',
+                    'alignSelf', 'alignItems', 'alignContent', 'transform']);
 
-element.addStyleMod('fontSize', {values: '<length> <percentage>'});
+element.setValueUnits(['<length>', '<percentage>'], ['top', 'right', 'bottom',
+                      'left', 'margin', 'padding', 'fontSize', 'width',
+                      'height', 'minWidth', 'maxWidth', 'minHeight',
+                      'maxHeight']);
 
-element.addFourSideProperty('margin', {values: '<length> <percentage>'});
-element.addFourSideProperty('padding', {values: '<length> <percentage>'});
+element.setValueUnits(['length'], ['outlineWidth', 'borderWidth',
+                      'borderTopWidth', 'borderRightWidth', 'borderBottomWidth',
+                      'borderLeftWidth']);
 
-element.addStyleMod('outlineWidth', {values: '<length>'});
-element.addStyleMod('borderWidth', {values: '<length>'});
-element.addStyleMod('borderTopWidth', {values: '<length>'});
-element.addStyleMod('borderRightWidth', {values: '<length>'});
-element.addStyleMod('borderBottomWidth', {values: '<length>'});
-element.addStyleMod('borderLeftWidth', {values: '<length>'});
-
-element.addStyleMod('top', {values: '<length> <percentage>'});
-element.addStyleMod('right', {values: '<length> <percentage>'});
-element.addStyleMod('bottom', {values: '<length> <percentage>'});
-element.addStyleMod('left', {values: '<length> <percentage>'});
-
-element.addStyleMod('flex', {prefixed: true});
-element.addStyleMod('flexGrow', {prefixed: true});
-element.addStyleMod('flexShrink', {prefixed: true});
-element.addStyleMod('flexDirection', {prefixed: true});
-element.addStyleMod('flexFlow', {prefixed: true});
-element.addStyleMod('flexWrap', {prefixed: true});
-element.addStyleMod('justifyContent', {prefixed: true});
-element.addStyleMod('order', {prefixed: true});
-element.addStyleMod('alignSelf', {prefixed: true});
-element.addStyleMod('alignItems', {prefixed: true});
-element.addStyleMod('alignContent', {prefixed: true});
-
-element.addStyleMod('transform', {
-  prefixed: true,
-});
-
-element.addStyleMod('translateX', {
+element.styleMods['translateX'] = {
   prefixed: true,
   property: 'transform',
   filter: function(val){
     console.log("Filtering", val);
     return 'translateX(' + val + 'px)';
   }
-});
+};
+
+for (var name in element.styleMods){
+  var mod = element.styleMods[name];
+  element.processModValues(name, mod);
+}
 
 function apply(arg1, args) {
   element.init(arg1, args);
