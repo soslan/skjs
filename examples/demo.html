@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>skjs demo</title>
+
+	<style type="text/css">
+		#splash{
+			background: whitesmoke;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			transition: opacity .5s;
+			z-index: 999999;
+		}
+
+		#splash-title{
+			color: blue;
+			padding:15px;
+			font-size: 130%;
+		}
+
+		#splash-status {
+			color: #ccc;
+			font-size: 85%;
+			padding-top: 10px;
+		}
+
+		#progress-bar-wrap{
+			width: 200px;
+			position: relative;
+			height: 5px;
+			overflow: hidden;
+			background-color: white;
+		}
+
+		#progress-bar{
+			width: 0%;
+			position: relative;
+			height: 100%;
+			background-color: blue;
+			transition: width .2s;
+			transition-timing-function: linear;
+		}
+
+		#progress-bar.indeterminate{
+			animation-name: indeterminate;
+			animation-duration: .75s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+		}
+
+		@keyframes indeterminate{
+			from {
+				-webkit-transform: translateX(-50px);
+			}
+
+			to {
+				-webkit-transform: translateX(200px);
+			}
+		}
+
+		#progress-bar.finished,
+		#progress-bar.finished.indeterminate{
+			animation: none;
+			width: 100%;
+			//transition: none;
+		}
+
+		/* For customization */
+		#splash{
+			background-color: white;
+		}
+
+		#progress-bar-wrap{
+			background-color: whitesmoke;
+			height: 5px;
+		}
+
+		#progress-bar{
+			background-color: red;
+		}
+
+		#progress-bar.indeterminate{
+			width: 50px;
+		}
+	</style>
+	<link rel="stylesheet" href="dependencies/codemirror.css" />
+	<style type="text/css">
+		#sandbox{
+			position: fixed;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			display: flex;
+		}
+
+		#sandbox > div{
+			padding: 5px;
+			width:50%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#sandbox > div > div{
+			flex:1;
+			position: relative;
+		}
+
+		.CodeMirror{
+			//position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 100%;
+		}
+
+		h3{
+			border-bottom: 1px dotted black;
+			margin: 0;
+		}
+
+		iframe{
+			border: none;
+		}
+
+		.cm-wrap{
+			position: relative;
+		}
+
+		.source{
+			display: none;
+		}
+
+		.demo-code{
+			width: 50%;
+			float: left;
+		}
+		.demo-result{
+			width: 50%;
+			float: right;
+		}
+		.demo-result > iframe{
+			width: 100%;
+		}
+		.demo{
+			clear: both;
+		}
+	</style>
+</head>
+<body>
+	<div id="splash">
+		<div id="splash-title">SKJS Demo</div>
+		<div id="progress-bar-wrap"><div id="progress-bar" class="indeterminate"></div></div>
+		<div id="splash-status" hidden>STATUS</div>
+	</div>
+<!-- 
+	<div id="demos">
+		<div class="demo">
+			<div class="source">
+CODE
+			</div>
+		</div>
+	</div>
+ -->
+	<div id="demos">
+		<div class="demo">
+			<div class="source">
+// This demonstrates sk.element().
+sk.element({
+	parent: document.body,
+	tag: 'div',
+	content: 'I am a div element.',
+	style: {
+		background: 'lime',
+	}
+});
+			</div>
+		</div>
+	</div>
+	<div id="demos">
+		<div class="demo">
+			<div class="source">
+// This is a demonstration of sk.span() function.
+sk.span({
+	parent: document.body,
+	content: 'I am a span.',
+});
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="dependencies/codemirror.js"></script>
+	<script type="text/javascript" src="dependencies/javascript.js"></script>
+	<script type="text/javascript" src="../dist/skjs/sk.js"></script>
+	<script type="text/javascript">
+		var splashElem = document.querySelector("#splash");
+
+		splashElem.addEventListener('transitionend', function(e){
+			if(e.propertyName === 'opacity'){
+				splashElem.style.display = 'none';
+			}
+		});
+	</script>
+	<script type="text/javascript">
+		var demos = document.querySelectorAll("#demos .demo");
+
+		var buildDemo = function(demo){
+			var source = demo.querySelector('.source');
+			var main = sk.div({
+				classes: 'demo-main',
+				parent: demo,
+			});
+			var code = sk.div({
+				classes: 'demo-code',
+				parent: main,
+			});
+			var result = sk.div({
+				classes: 'demo-result',
+				parent: main,
+			});
+			var cmWrap = sk.div({
+				classes: 'cm-wrap',
+				parent: code,
+			});
+			var frame = sk.element({
+				tag: 'iframe',
+				parent: result,
+			});
+			var cm = CodeMirror(cmWrap, {
+				mode: 'javascript',
+				indentWithTabs: false,
+				tabSize: 2,
+				lineNumbers: true,
+				autoRefresh:true,
+			});
+			cm.setValue(source.innerHTML.trim());
+			cm.refresh();
+
+			var refresh = function(done){
+				frame.contentWindow.document.open();
+				frame.contentWindow.document.write('<html><body></body></html>');
+				localStorage.setItem('skjs_sandbox_code', cm.getValue());
+				var skScript = sk.element({
+					window: frame.contentWindow,
+					tag: 'script',
+					parent: frame.contentWindow.document.body,
+				});
+				skScript.onload = function(){
+					var script = sk.element({
+						window: frame.contentWindow,
+						tag: 'script',
+						parent: frame.contentWindow.document.body,
+					});
+					script.innerHTML = cm.getValue();
+				};
+				skScript.src = '../dist/skjs/sk.js';
+				frame.contentWindow.document.close();
+			};
+			refresh();
+			cm.on('change', function(){
+				refresh();
+			});
+		}
+
+		for(var i=0; i<demos.length; i++){
+			buildDemo(demos[i]);
+		}
+	</script>
+	<script type="text/javascript">
+		setTimeout(function(){
+			document.querySelector("#progress-bar").classList.add('finished');
+			splashElem.style.opacity = 0;
+
+		}, 0);
+	</script>
+</body>
+</html>
