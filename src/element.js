@@ -1,4 +1,4 @@
-function element( args ) {
+var element = function( args ) {
   args = args || {};
   var w = args.window || window;
   if(typeof args.query === 'string'){
@@ -97,6 +97,7 @@ element.style = function(elem, arg1, arg2){
     element.setOneStyle(elem, i, args[i]);
   }
 };
+var style = element.style;
 
 element.setOneStyle = function(elem, property, value){
   if(element.styleMods[property] != null){
@@ -228,38 +229,46 @@ for (var name in element.styleMods){
   element.processModValues(name, mod);
 }
 
-function apply(arg1, args) {
+var apply = function(arg1, args) {
   element.init(arg1, args);
-}
+};
 
-function query(arg1, args){
+var query = function(arg1, args){
   args.query = arg1;
   return element(args);
-}
+};
 
-function span(args){
+var span = function(args){
   args = args || {};
   args.tag = 'span';
   return element(args);
-}
+};
 
-function div(args){
+var div = function(args){
   args = args || {};
   args.tag = 'div';
   return element(args);
-}
+};
 
-function svg(args){
+var svg = function(args){
   args = args || {};
   args.namespace = 'http://www.w3.org/2000/svg';
   if(args.tag == null){
     args.tag = 'svg';
   }
   return element(args);
-}
+};
 
-function path(args){
+var path = function(args){
   args = args || {};
   args.tag = 'path';
   return svg(args);
-}
+};
+
+sk.element = element;
+sk.style = style;
+sk.div = div;
+sk.span = span;
+sk.svg = svg;
+sk.path = path;
+sk.query = query;

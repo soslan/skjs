@@ -271,3 +271,9 @@ function withBooleanDo(value, callback){
     }
   }
 }
+
+sk.model = model;
+sk.withBooleanDo = withBooleanDo;
+sk.withStringDo = withStringDo;
+sk.withNumberDo = withNumberDo;
+sk.withAnyDo = withAnyDo;
