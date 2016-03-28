@@ -185,37 +185,47 @@
 		});
 
 		var cm = CodeMirror(cmCont, {
-	      mode: 'javascript',
-	      indentWithTabs: false,
-	      tabSize: 2,
-	      lineNumbers: true,
-	      autoRefresh:true,
-	      //theme: 'neat',
-	    });
+		  mode: 'javascript',
+		  indentWithTabs: false,
+		  tabSize: 2,
+		  lineNumbers: true,
+		  autoRefresh:true,
+		  //theme: 'neat',
+		});
 
-	    cm.setValue(localStorage.getItem('skjs_sandbox_code') || '');
+		cm.setValue(localStorage.getItem('skjs_sandbox_code') || '');
+		cm.refresh();
 
-	    cm.on('change', function(){
-	    	frame.contentWindow.document.open();
-	    	frame.contentWindow.document.write('<html><body></body></html>');
-	    	var skScript = sk.element({
-	    		window: frame.contentWindow,
-	    		tag: 'script',
-	    		parent: frame.contentWindow.document.body,
-	    		attr: {
-	    			src: '../dist/skjs/sk.js',
-	    		}
-	    	});
-	    	var script = sk.element({
-	    		window: frame.contentWindow,
-	    		tag: 'script',
-	    		parent: frame.contentWindow.document.body,
-	    	});
-	    	script.innerHTML = cm.getValue();
-	    	localStorage.setItem('skjs_sandbox_code', cm.getValue());
-	    	cm.refresh();
-	    });
-		
+		var refresh = function(done){
+			frame.contentWindow.document.open();
+			frame.contentWindow.document.write('<html><body></body></html>');
+			localStorage.setItem('skjs_sandbox_code', cm.getValue());
+			var skScript = sk.element({
+				window: frame.contentWindow,
+				tag: 'script',
+				parent: frame.contentWindow.document.body,
+			});
+			skScript.onload = function(){
+				var script = sk.element({
+					window: frame.contentWindow,
+					tag: 'script',
+					parent: frame.contentWindow.document.body,
+				});
+				script.innerHTML = cm.getValue();
+				if(typeof done === "function"){
+					done();
+				}
+			};
+			skScript.src = '../dist/skjs/sk.js';
+			frame.contentWindow.document.close();
+		};
+		document.addEventListener('DOMContentLoaded', function(){
+			refresh(function(){
+				cm.on('change', function(){
+					refresh();
+				});
+			});
+		});
 	</script>
 	<script type="text/javascript">
 		setTimeout(function(){
