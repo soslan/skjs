@@ -12,29 +12,70 @@ function Model(args){
 
 Model.prototype.set = function(arg1, arg2, arg3){
   var self = this;
-  var customUpstream, filter;
-  if(typeof arg2 === "function"){
-    filter = arg2;
-    customUpstream = arg3;
-  }
-  else {
-    customUpstream = arg2;
-  }
-  if(arg1 instanceof Model){
-    arg1.listen(function(val, upstream){
-      upstream = upstream.concat(customUpstream);
-      if(upstream && upstream.indexOf(self) !== -1){
-        return;
-      }
-      if(typeof filter === "function"){
-        val = filter(val);
-      }
-      self.setValue(val, upstream);
-    });
+  var values = [];
+  var customUpstream, filter, val;
+  if(arguments.length >= 3){
+    for (var i=0; i<arguments.length-2; i++){
+      values.push(arguments[i]);
+    }
+    if(typeof arguments[arguments.length-2] === "function"){
+      filter = arguments[arguments.length-2];
+      customUpstream = arguments[arguments.length-1];
+    }
+    else{
+      values.push(arguments[arguments.length-2]);
+      filter = arguments[arguments.length-1];
+    }
   }
   else{
-    self.setValue(arg1, customUpstream);
+    values.push(arg1);
+    if(typeof arg2 === "function"){
+      filter = arg2;
+    }
+    else {
+      customUpstream = arg2;
+    }
   }
+  values.forEach(function(value){
+    if(value instanceof Model){
+      value.listen(function(val, upstream){
+        upstream = upstream.concat(customUpstream);
+        if(upstream && upstream.indexOf(self) !== -1){
+          return;
+        }
+        if(typeof filter === "function"){
+          val = filter.apply(this, values.map(function(value){
+            if(value instanceof Model){
+              return value.get();
+            }
+            else{
+              return value;
+            }
+          }));
+        }
+        self.setValue(val, upstream);
+      });
+    }
+  });
+  if(typeof filter === "function"){
+    val = filter.apply(this, values.map(function(value){
+      if(value instanceof Model){
+        return value.get();
+      }
+      else{
+        return value;
+      }
+    }));
+  }
+  else{
+    if(arg1 instanceof Model){
+      val = arg1.get();
+    }
+    else{
+      val = arg1;
+    }
+  }
+  self.setValue(val, customUpstream);
 }
 
 Model.prototype.setValue = function(val, upstream){
