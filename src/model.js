@@ -102,7 +102,7 @@ Model.prototype.get = function(){
   return this.valueCore;
 }
 
-Model.prototype.sync = function(arg1, upstreamFilter, downstreamFilter){
+Model.prototype.bind = function(arg1, upstreamFilter, downstreamFilter){
   if(arg1 instanceof Model){
     this.set(arg1, upstreamFilter);
     //arg1.set(this, downstreamFilter);
@@ -120,6 +120,7 @@ Model.prototype.sync = function(arg1, upstreamFilter, downstreamFilter){
     this.set(arg1, upstreamFilter);
   }
 }
+Model.prototype.sync = Model.prototype.bind;
 
 Model.prototype.init = function(args){
   args = args || {};
