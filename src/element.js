@@ -30,10 +30,8 @@ element.init = function(arg1, args){
     arg1.id = args.id;
   }
 
-  if ( typeof classes === "string" ) {
-    classes.split( " " ).forEach(function( className ) {
-      arg1.classList.add( className );
-    });
+  if ( classes !== undefined ) {
+    element.addClass(arg1, classes);
   }
 
   if ( args.content instanceof w.Node ) {
@@ -79,6 +77,28 @@ element.init = function(arg1, args){
 
   return arg1;
 };
+
+element.addClass = function(elem, arg1) {
+  var saved;
+  if(arg1 instanceof Array){
+    arg1.forEach(function(cls){
+      element.addClass(elem, cls);
+    });
+  }
+  else {
+    sk.withStringDo(arg1, function(val){
+      val.split(" ").forEach(function(cls){
+        elem.classList.add(cls);
+      });
+      if(saved){
+        saved.split(' ').forEach(function(cls){
+          elem.classList.remove(cls);
+        });
+      }
+      saved = val;
+    });
+  }
+}
 
 element.style = function(elem, arg1, arg2){
   var args;
