@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>skjs test suite</title>
+	<style type="text/css">
+		html{
+			font-family: monospace;
+		}
+		.suite-body{
+			padding-left: 1em;
+		}
+		.test > *:after{
+			content: " ";
+		}
+
+		.test .status{
+			font-weight: bold;
+		}
+
+		.test.success .status{
+			color: green;
+		}
+		.test.fail .status{
+			color: red;
+		}
+		.test.running .status{
+			color: blue;
+		}
+		.test .message{
+			padding-left: 1em;
+			color: gray;
+		}
+
+	</style>
+</head>
+<body>
+	<script type="text/javascript" src="../dist/skjs/sk.js"></script>
+	<script type="text/javascript" src="suite.js"></script>
+	<script type="text/javascript" src="test_model.js"></script>
+</body>
+</html>
