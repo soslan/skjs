@@ -130,6 +130,9 @@ Model.prototype.init = function(args){
   if(typeof args.listener === "function"){
     this.listen(args.listener);
   }
+  if(typeof args.onchange === "function"){
+    this.onchange(args.onchange);
+  }
   if(typeof args.filter === "function"){
     this.filter(args.filter);
   }
