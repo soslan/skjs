@@ -1,12 +1,22 @@
 function suite(name, callback){
   var self = {};
+  var appendTo;
+  if(suite.current != null){
+    appendTo = suite.current.tests;
+  }
+  else{
+    appendTo = document.body;
+  }
+  suite.history.push(suite.current);
   suite.current = self;
 
   self.container = sk.div({
-    parent: document.body,
+    classes: 'suite',
+    parent: appendTo,
   });
   self.name = sk.div({
     parent: self.container,
+    classes: 'suite-name',
     content: name,
   });
   self.tests = sk.div({
@@ -17,7 +27,9 @@ function suite(name, callback){
   if(typeof callback === "function"){
     callback.call(self);
   }
+  suite.current = suite.history.pop();
 }
+suite.history = [];
 
 var Test = function(suite, description, callback, expected, timeout){
   var self = this;
