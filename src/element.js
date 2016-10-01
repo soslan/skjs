@@ -1,3 +1,12 @@
+/** @function
+ * @name element
+ * @desc Creates or retreives an element
+ * @param args
+ * @example
+ * var myElem = element({
+ *   tag: 'div',
+ * });
+ */
 var element = function( args ) {
   args = args || {};
   var w = args.window || window;
@@ -23,73 +32,93 @@ var element = function( args ) {
 element.init = function(arg1, args){
   var w = args.window || window;
   var parent = args.parent || args.appendTo;
-  var classes = args.classes || args.className || args.class;
+  var classes = args.classes || args.className || args.cls || args.class;
   var attributes = args.attributes || args.attr;
+  var elem;
+  sk.withElementDo(arg1, function(result){
+    elem = result;
+  });
 
-  if( typeof args.id === "string" ) {
-    arg1.id = args.id;
-  }
+  sk.withStringDo(args.id, function(id){
+    elem.id = id;
+  });
 
-  if ( classes !== undefined ) {
-    element.addClass(arg1, classes);
-  }
+  element.addClass(elem, classes);
 
   if ( args.content instanceof w.Node ) {
-    arg1.appendChild( args.content );
+    elem.appendChild( args.content );
   } else if ( args.content != null ) {
     withStringDo( args.content, function(val){
-      arg1.textContent = val;
+      elem.textContent = val;
     });
   }
-
-  if ( typeof parent === "string" ) {
-    parent = w.document.querySelector( parent );
+  var parent = args.parent || args.appendTo;
+  if(parent instanceof Object && typeof parent.skHandleChild === "function"){
+    parent.skHandleChild(elem);
   }
-  if ( parent instanceof w.Node ) {
-    parent.appendChild( arg1 );
+  else{
+    sk.withElementDo(args.parent || args.appendTo, function(parent){
+      parent.appendChild(elem);
+    });
   }
 
   if ( typeof attributes === "object" ) {
     for ( var key in attributes ) {
-      arg1.setAttribute( key, attributes[ key ] );
-    }
-  }
-
-  args.style = args.styles || args.style;
-  if ( typeof args.style === "object" ) {
-    element.style(arg1, args.style);
-  }
-
-  if ( typeof args.action === "function" ) {
-    // TODO: Touch events
-    arg1.addEventListener( "click", args.action );
-  }
-
-  if ( typeof args.listeners === "object" ) {
-    for ( var i in args.listeners ) {
-      arg1.addEventListener( i, function(e){
-        if ( typeof args.listeners[i] === "function" ) {
-          args.listeners[i](e);
-        }
+      sk.withStringDo(attributes[ key ], function(val){
+        elem.setAttribute(key, val);
       });
     }
   }
 
-  return arg1;
+  args.style = args.styles || args.style;
+  element.style(elem, args.style || args.styles);
+
+  if ( typeof args.action === "function" ) {
+    // TODO: Touch events
+    elem.addEventListener( "click", args.action );
+  }
+
+  args.listeners = args.listeners || args.events;
+
+  sk.withEachDo(args.listeners, function(listener, ev){
+    elem.addEventListener( ev, function(e){
+      if ( typeof listener === "function" ) {
+        listener(e);
+      }
+    });
+  });
+
+  // if ( typeof args.listeners === "object" ) {
+  //   for ( var i in args.listeners ) {
+  //     elem.addEventListener( i, function(e){
+  //       if ( typeof args.listeners[i] === "function" ) {
+  //         args.listeners[i](e);
+  //       }
+  //     });
+  //   }
+  // }
+
+  return elem;
 };
 
 element.addClass = function(elem, arg1) {
   var saved;
-  if(arg1 instanceof Array){
+  if(arg1 == null){
+    return;
+  }
+  else if(arg1 instanceof Array){
     arg1.forEach(function(cls){
       element.addClass(elem, cls);
     });
   }
   else {
     sk.withStringDo(arg1, function(val){
-      val.split(" ").forEach(function(cls){
-        elem.classList.add(cls);
-      });
+      val = val.trim();
+      if(val != ''){
+        val.split(" ").forEach(function(cls){
+          elem.classList.add(cls);
+        });
+      }
       if(saved){
         saved.split(' ').forEach(function(cls){
           elem.classList.remove(cls);
@@ -98,11 +127,14 @@ element.addClass = function(elem, arg1) {
       saved = val;
     });
   }
-}
+};
 
 element.style = function(elem, arg1, arg2){
   var args;
-  if(typeof arg1 === "string"){
+  if(arg1 == null){
+    return;
+  }
+  else if(typeof arg1 === "string"){
     args = {};
     args[arg1] = arg2;
   }
@@ -286,9 +318,13 @@ var path = function(args){
 };
 
 sk.element = element;
-sk.style = style;
+sk.init = element.init;
 sk.div = div;
 sk.span = span;
 sk.svg = svg;
 sk.path = path;
 sk.query = query;
+sk.apply = apply;
+sk.cls = element.addClass;
+sk.style = element.style;
+sk.css = element.style;

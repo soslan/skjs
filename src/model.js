@@ -10,6 +10,8 @@ function Model(args){
   this.init(args);
 }
 
+sk.Model = Model;
+
 Model.prototype.set = function(arg1, arg2, arg3){
   var self = this;
   var values = [];
@@ -83,9 +85,9 @@ Model.prototype.setValue = function(val, upstream){
   for (var i in this.filters){
     val = this.filters[i](val);
   }
-  if(this.valueCore === val){
-    return;
-  }
+  // if(this.valueCore === val){
+  //   return;
+  // }
   this.valueCore = val;
   if(upstream == null){
     upstream = [self];
@@ -194,6 +196,23 @@ Model.prototype.false = function(listener){
   }
 }
 
+Model.prototype.property = function(prop, val){
+  this.value[prop] = val;
+  this.set(this.value);
+};
+
+Model.prototype.propertyModel = function(prop){
+  var model = sk.model();
+  var self = this;
+  model.bind(this, function(parent){
+    return parent[prop];
+  }, function(val){
+    self.property(prop, val);
+    return self.value;
+  });
+  return model;
+}
+
 Model.prototype.switchClasses = function(elem, classes){
   if(typeof classes === "string"){
     classes = {
@@ -292,6 +311,9 @@ function withNumberDo(value, callback){
 }
 
 function withStringDo(value, callback){
+  if(typeof callback !== "function" || value == null){
+    return;
+  }
   if(value instanceof Model){
     value.listen(function(val){
       callback(String(val));
