@@ -1,7 +1,7 @@
 sk.element = function(arg1, arg2, arg3){
   if( typeof arg1 === "object"){
     args = arg1;
-    elem = args.element || args.query;
+    elem = args.element || args.query || args.selector;
   }
 
   if(typeof elem === "string"){
@@ -43,22 +43,25 @@ sk.create = function(arg1, arg2){
 }
 
 sk.query = function(arg1, arg2, arg3){
-  if( typeof arg2 === "string" ){
-    topNode = arg1;
-    throw('sk.query(): not implemented.');
+  if( typeof arg2 === "string" && arg1 instanceof Element){
+    rootNode = arg1;
+    selector = arg2;
+    args = arg3;
   }
   else if( typeof arg1 === "string" ){
     selector = arg1;
     args = arg2;
+    rootNode = document;
   }
   else if( typeof arg1 === "object" ){
     args = arg1;
-    selector = args.selector || args.query;
+    selector = args.element || args.query || args.selector;
+    rootNode = document;
   }
   else{
     throw('sk.query(): wrong arguments.');
   }
-  elem = document.querySelector(selector);
+  elem = rootNode.querySelector(selector);
   return args ? sk.init(elem, args) : elem;
 }
 
