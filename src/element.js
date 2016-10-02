@@ -1,33 +1,66 @@
-/** @function
- * @name element
- * @desc Creates or retreives an element
- * @param args
- * @example
- * var myElem = element({
- *   tag: 'div',
- * });
- */
-var element = function( args ) {
-  args = args || {};
-  var w = args.window || window;
-  if(typeof args.query === 'string'){
-    var elem = w.document.querySelector(args.query);
+sk.element = function(arg1, arg2, arg3){
+  if( typeof arg1 === "object"){
+    args = arg1;
+    elem = args.element || args.query;
   }
-  else {
-    if(typeof args.namespace === 'string'){
-      var elem = w.document.createElementNS( args.namespace, args.tag || "div" );
-    }
-    else{
-      var elem = w.document.createElement( args.tag || "div" );
-    }
+
+  if(typeof elem === "string"){
+    return sk.query(elem, args);
   }
-  if(elem){
-    return element.init(elem, args);
+  else if(elem == null){
+    return sk.create(args);
+  }
+  else if(elem instanceof Node){
+    return args ? sk.init(elem, args) : elem;
   }
   else{
-    return null;
+    throw("sk.element(): wrong arguments.");
   }
 };
+
+var element = sk.element;
+
+sk.create = function(arg1, arg2){
+  var elem, tag, args;
+
+  if(typeof arg1 === "object"){
+    args = arg1 || {};
+    tag = args.tag || args.tagName || 'div';
+  }
+  else if(typeof arg1 === "string"){
+    tag = arg1;
+    args = arg2;
+  }
+  else if(arg1 == null){
+    tag = 'div';
+    args = arg2;
+  }
+  else{
+    throw("sk.create(): wrong arguments.");
+  }
+  elem = document.createElement( tag );
+  return args ? sk.init(elem, args) : elem;
+}
+
+sk.query = function(arg1, arg2, arg3){
+  if( typeof arg2 === "string" ){
+    topNode = arg1;
+    throw('sk.query(): not implemented.');
+  }
+  else if( typeof arg1 === "string" ){
+    selector = arg1;
+    args = arg2;
+  }
+  else if( typeof arg1 === "object" ){
+    args = arg1;
+    selector = args.selector || args.query;
+  }
+  else{
+    throw('sk.query(): wrong arguments.');
+  }
+  elem = document.querySelector(selector);
+  return args ? sk.init(elem, args) : elem;
+}
 
 element.init = function(arg1, args){
   var w = args.window || window;
@@ -285,11 +318,6 @@ var apply = function(arg1, args) {
   element.init(arg1, args);
 };
 
-var query = function(arg1, args){
-  args.query = arg1;
-  return element(args);
-};
-
 var span = function(args){
   args = args || {};
   args.tag = 'span';
@@ -323,7 +351,6 @@ sk.div = div;
 sk.span = span;
 sk.svg = svg;
 sk.path = path;
-sk.query = query;
 sk.apply = apply;
 sk.cls = element.addClass;
 sk.style = element.style;
