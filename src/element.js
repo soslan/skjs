@@ -1,5 +1,5 @@
 sk.element = function(arg1, arg2, arg3){
-  if( typeof arg1 === "object" ){
+  if( arguments.length === 1 && typeof arg1 === "object" ) {
     args = arg1;
     elem = args.element || args.query || args.selector;
   }
@@ -27,7 +27,7 @@ var element = sk.element;
 sk.create = function(arg1, arg2){
   var elem, tag, args;
 
-  if(typeof arg1 === "object"){
+  if( arguments.length === 1 && typeof arg1 === "object" ){
     args = arg1 || {};
     tag = args.tag || args.tagName || 'div';
   }
@@ -57,7 +57,7 @@ sk.query = function(arg1, arg2, arg3){
     args = arg2;
     rootNode = document;
   }
-  else if( typeof arg1 === "object" ){
+  else if( arguments.length === 1 && typeof arg1 === "object" ){
     args = arg1;
     selector = args.element || args.query || args.selector;
     rootNode = document;
