@@ -1,7 +1,11 @@
 sk.element = function(arg1, arg2, arg3){
-  if( typeof arg1 === "object"){
+  if( typeof arg1 === "object" ){
     args = arg1;
     elem = args.element || args.query || args.selector;
+  }
+  else if(typeof arg2 === "object"){
+    args = arg2;
+    elem = arg1;
   }
 
   if(typeof elem === "string"){
