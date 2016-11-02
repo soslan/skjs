@@ -1,1 +1,1 @@
-})(window.sk = window.sk || {});
+})(window.sk = function(){return sk.element.apply(this, arguments);});
