@@ -90,7 +90,7 @@ element.init = function(arg1, args){
   });
 
   if ( args.id === true ) {
-    elem.id = 'sk-' + elem.tagName + ++idCount;
+    elem.id = 'sk-' + elem.tagName.toLowerCase() + '-' + ++idCount;
   }
   else{
     sk.withStringDo(args.id, function(id){
