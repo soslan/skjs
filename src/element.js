@@ -1,9 +1,11 @@
+var idCount=0;
 sk.element = function(arg1, arg2, arg3){
-  if( arguments.length === 1 && typeof arg1 === "object" ) {
+  var args, elem;
+  if( !(arg1 instanceof Element) && typeof arg1 === "object" ) {
     args = arg1;
     elem = args.element || args.query || args.selector;
   }
-  else if(typeof arg2 === "object"){
+  else {
     args = arg2;
     elem = arg1;
   }
@@ -47,6 +49,7 @@ sk.create = function(arg1, arg2){
 }
 
 sk.query = function(arg1, arg2, arg3){
+  var rootNode, selector, args, elem;
   if( typeof arg2 === "string" && arg1 instanceof Element){
     rootNode = arg1;
     selector = arg2;
@@ -65,7 +68,14 @@ sk.query = function(arg1, arg2, arg3){
   else{
     throw('sk.query(): wrong arguments.');
   }
-  elem = rootNode.querySelector(selector);
+
+  try{
+    elem = rootNode.querySelector(selector);
+  }
+  catch(e){
+    return
+  }
+  
   return args ? sk.init(elem, args) : elem;
 }
 
@@ -79,9 +89,14 @@ element.init = function(arg1, args){
     elem = result;
   });
 
-  sk.withStringDo(args.id, function(id){
-    elem.id = id;
-  });
+  if ( args.id === true ) {
+    elem.id = 'sk-' + elem.tagName + ++idCount;
+  }
+  else{
+    sk.withStringDo(args.id, function(id){
+      elem.id = id;
+    });
+  }
 
   element.addClass(elem, classes);
 
@@ -362,3 +377,5 @@ sk.apply = apply;
 sk.cls = element.addClass;
 sk.style = element.style;
 sk.css = element.style;
+sk.q = sk.query;
+sk.c = sk.create;

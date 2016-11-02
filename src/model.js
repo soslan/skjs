@@ -81,20 +81,24 @@ Model.prototype.set = function(arg1, arg2, arg3){
 }
 
 Model.prototype.setValue = function(val, upstream){
-  var self = this;
-  for (var i in this.filters){
-    val = this.filters[i](val);
-  }
-  // if(this.valueCore === val){
-  //   return;
-  // }
-  this.valueCore = val;
+  var self = this, cancel = false;
   if(upstream == null){
     upstream = [self];
   }
-  else{
-    upstream.push(self);
+  for (var i in this.filters){
+    val = this.filters[i](val, {
+      cancel: function(){cancel=true;},
+      upstream: upstream,
+    });
+    if(cancel){
+      return;
+    }
   }
+  if(this.valueCore === val){
+    return;
+  }
+  this.valueCore = val;
+  upstream.push(self);
   this.listeners.forEach(function(handler){
     handler(self.value, upstream);
   });
@@ -197,8 +201,12 @@ Model.prototype.false = function(listener){
 }
 
 Model.prototype.property = function(prop, val){
+  var self = this;
   this.value[prop] = val;
   this.set(this.value);
+  this.listeners.forEach(function(handler){
+    handler(self.value, [self]);
+  });
 };
 
 Model.prototype.propertyModel = function(prop){
