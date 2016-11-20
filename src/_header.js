@@ -1,7 +1,7 @@
 ;(function(sk){
 
 sk.args = function(args){
-	var synopses = [], out, defaults = {};
+	var synopses = [], out, defaults = {}, optional;
 	for(var i = 1; i < arguments.length - 1; i++){
 		synopses.push(arguments[i]);
 	}
@@ -17,23 +17,35 @@ sk.args = function(args){
 		var parts = synopsis.split(',')
 		out = {};
 		match = true;
-		for(var j in parts){
+		argi = 0;
+		for(var j=0, argi=0; j<parts.length; j++, argi++){
 			if (false && args[j] === undefined) {
 				break;
 				match = false;
 			}
-			var val = args[j];
+			var val = args[argi];
+			// This may strike performance a bit.
+			// parts[j] = parts[j].replace(/  +/g, ' ');
+			// 
 			var part = parts[j].trim().split(' ');
 			if(part.length >= 2){
 				type = part[0];
 				name = part[1];
 			}
 			else if(part.length === 1){
-				type = 'any';
-				name = part[0];
+				type = part[0];
+				name = null;
 			}
 			else{
-				continue;
+				match = false;
+				break;
+			}
+			if(type.charAt(type.length - 1) === '?'){
+				optional = true;
+				type = type.slice(0, -1);
+			}
+			else{
+				optional = false;
 			}
 			if(type === 'str' && typeof val === 'string'){
 				out[name] = val;
@@ -52,6 +64,16 @@ sk.args = function(args){
 			}
 			else if(type === 'any'){
 				out[name] = val;
+			}
+			else if(type === 'args' && typeof val === 'object' && val !== null){
+				for (var k in val){
+					if(val[k] !== undefined){
+						out[k] = val[k];
+					}
+				}
+			}
+			else if(optional){
+				argi--;
 			}
 			else{
 				match = false;
