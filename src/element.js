@@ -3,10 +3,15 @@ sk.element = function(arg1, arg2, arg3){
   var args, elem;
   args = sk.args(arguments,
     'str element, Element? parent, args?',
-    'Element element, Element? parent, args?')
-  if(typeof args.element === 'string'){
+    'Element element, Element? parent, args?',
+    'args?');
+  if(!args.element){
+    return sk.create(args);
+  }
+  else if(typeof args.element === 'string'){
     if(args.element.charAt(0) === '<' && args.element.charAt(args.element.length - 1) === '>'){
-      return sk.create(args.element.substr(1, args.element.length-2), args);
+      args.tag = args.element.substr(1, args.element.length-2);
+      return sk.create(args);
     }
     else{
       return sk.query(args.element, args);
