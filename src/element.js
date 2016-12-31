@@ -1,26 +1,19 @@
 var idCount=0;
 sk.element = function(arg1, arg2, arg3){
   var args, elem;
-  if( !(arg1 instanceof Element) && typeof arg1 === "object" ) {
-    args = arg1;
-    elem = args.element || args.query || args.selector;
-  }
-  else {
-    args = arg2;
-    elem = arg1;
-  }
-
-  if(typeof elem === "string"){
-    return sk.query(elem, args);
-  }
-  else if(elem == null){
-    return sk.create(args);
-  }
-  else if(elem instanceof Node){
-    return args ? sk.init(elem, args) : elem;
+  args = sk.args(arguments,
+    'str element, Element? parent, args?',
+    'Element element, Element? parent, args?')
+  if(typeof args.element === 'string'){
+    if(args.element.charAt(0) === '<' && args.element.charAt(args.element.length - 1) === '>'){
+      return sk.create(args.element.substr(1, args.element.length-2), args);
+    }
+    else{
+      return sk.query(args.element, args);
+    }
   }
   else{
-    throw("sk.element(): wrong arguments.");
+    return sk.init(args.element, args);
   }
 };
 
