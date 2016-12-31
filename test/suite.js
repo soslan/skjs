@@ -49,6 +49,7 @@ var Test = function(suite, description, callback, expected, timeout){
   sk.span({
     parent: self.container,
     content: description,
+    cls: 'title'
   });
   self.statusElement = sk.span({
     parent: self.container,
@@ -77,7 +78,12 @@ var Test = function(suite, description, callback, expected, timeout){
   var assertion = new Assertion(self);
 
   if(typeof callback === "function"){
-    callback.call(self, assertion);
+    try{
+      callback.call(self, assertion);
+    }
+    catch(e){
+      self.fail(e.stack || e);
+    }
   }
 
   if(self.expected == null && self.status.value === 'running'){
@@ -143,6 +149,17 @@ Assertion.prototype.true = function(arg1){
   else{
     this.test.fail("'" + arg1 + "' is not true");
   }
+}
+
+Assertion.prototype.throws = function(arg1){
+  try{
+    arg1();
+  }
+  catch(e){
+    this.test.pass();
+    return
+  }
+  this.test.fail("Did not throw an error.");
 }
 
 var assert = new Assertion();

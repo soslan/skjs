@@ -18,7 +18,7 @@ suite("Model tests", function(){
     m.set(1);
     assert.equal(m.get(), 1);
   });
-  test("setter and getter", function(assert){
+  test("set and get", function(assert){
     m=sk.model();
     m.set(1);
     assert.equal(m.get(), m.value);
