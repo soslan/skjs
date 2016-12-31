@@ -15,6 +15,8 @@ sk.args = function(args){
 	for(var i in synopses){
 		var synopsis = synopses[i];
 		var parts = synopsis.split(',')
+		var types = sk.args.types;
+		var typeMatch;
 		out = {};
 		match = true;
 		argi = 0;
@@ -34,6 +36,9 @@ sk.args = function(args){
 			}
 			else if(part.length === 1){
 				type = part[0];
+				if(type === ''){
+					continue;
+				}
 				name = null;
 			}
 			else{
@@ -47,30 +52,23 @@ sk.args = function(args){
 			else{
 				optional = false;
 			}
-			if(type === 'str' && typeof val === 'string'){
-				out[name] = val;
+			if(types[type]){
+				typeMatch = types[type].checker(val)
 			}
-			else if(type === 'num' && typeof val === 'number'){
-				out[name] = val;
+			else if(window[type] && typeof window[type] === 'function'){
+				typeMatch = val instanceof window[type];
 			}
-			else if(type === 'func' && typeof val === 'function'){
-				out[name] = val;
-			}
-			else if(type === 'array' && val instanceof Array){
-				out[name] = val;
-			}
-			else if(type === 'obj' && typeof val === 'object'){
-				out[name] = val;
-			}
-			else if(type === 'any'){
-				out[name] = val;
-			}
-			else if(type === 'args' && typeof val === 'object' && val !== null){
-				for (var k in val){
-					if(val[k] !== undefined){
-						out[k] = val[k];
+			if(typeMatch){
+				if(type === 'args'){
+					for (var k in val){
+						if(val[k] !== undefined){
+							out[k] = val[k];
+						}
 					}
 				}
+				else{
+					out[name] = val;
+				}	
 			}
 			else if(optional){
 				argi--;
@@ -89,5 +87,38 @@ sk.args = function(args){
 			return out;
 		}
 	}
-	throw('Wrong arguments');
+	throw('sk.args: wrong arguments');
 }
+
+sk.args.types = {};
+
+sk.args.register = function(type, checker){
+	sk.args.types[type] = {
+		checker: checker,
+	}
+}
+
+sk.args.register('str', function(val){
+	return typeof val === 'string';
+});
+sk.args.register('num', function(val){
+	return typeof val === 'number';
+});
+sk.args.register('func', function(val){
+	return typeof val === 'function';
+});
+sk.args.register('array', function(val){
+	return val instanceof Array;
+});
+sk.args.register('obj', function(val){
+	return typeof val === 'object' && val !== null;
+});
+sk.args.register('any', function(val){
+	return true;
+});
+sk.args.register('args', function(val){
+	return typeof val === 'object' && val !== null;
+});
+sk.args.register('Element', function(val){
+	return val instanceof Element;
+})
