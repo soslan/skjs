@@ -197,27 +197,31 @@
 		cm.refresh();
 
 		var refresh = function(done){
+			console.log('===============');
+			console.log('RUNNING SANDBOX');
+			console.log('===============');
 			frame.contentWindow.document.open();
-			frame.contentWindow.document.write('<html><body></body></html>');
+			frame.contentWindow.document.write('<html><head><script src="../dist/skjs/sk.js"><\/script></head><body>'+'<script>'+cm.getValue()+"<\/script></body></html>");
 			localStorage.setItem('skjs_sandbox_code', cm.getValue());
-			var skScript = sk.element({
-				window: frame.contentWindow,
-				tag: 'script',
-				parent: frame.contentWindow.document.body,
-			});
-			skScript.onload = function(){
-				var script = sk.element({
-					window: frame.contentWindow,
-					tag: 'script',
-					parent: frame.contentWindow.document.body,
-				});
-				script.innerHTML = cm.getValue();
-				if(typeof done === "function"){
-					done();
-				}
-			};
-			skScript.src = '../dist/skjs/sk.js';
+			// var skScript = sk.element({
+			// 	window: frame.contentWindow,
+			// 	tag: 'script',
+			// 	parent: frame.contentWindow.document.body,
+			// });
+			// skScript.onload = function(){
+			// 	var script = sk.element({
+			// 		window: frame.contentWindow,
+			// 		tag: 'script',
+			// 		parent: frame.contentWindow.document.body,
+			// 	});
+			// 	script.innerHTML = cm.getValue();
+			// 	if(typeof done === "function"){
+			// 		done();
+			// 	}
+			// };
+			//skScript.src = '../dist/skjs/sk.js';
 			frame.contentWindow.document.close();
+			if(done)done();
 		};
 		document.addEventListener('DOMContentLoaded', function(){
 			refresh(function(){
