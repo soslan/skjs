@@ -14,6 +14,7 @@ sk.withEachDo = function(seq, callback){
     }
   }
 };
+sk.each = sk.withEachDo;
 
 sk.withElementDo = function(arg, callback){
   if(typeof callback !== "function" || arg == null){
@@ -80,3 +81,26 @@ sk.getAbsolutePosition = function(elem){
   }
   return offset;
 };
+
+sk.activator = function(args){
+  return new SKActivator(args);
+}
+
+function SKActivator(){
+  var self = this;
+  var args = sk.args(arguments, 'args?');
+  this.activation = args.activation;
+  this.deactivation = args.deactivation;
+  this.active;
+}
+
+SKActivator.prototype.activate = function(args){
+  var self = this;
+  var prev = self.active;
+  var next = args;
+  if(prev){
+    self.deactivation(prev, next, self);
+  }
+  self.activation(prev, next, self);
+  self.active = args;
+}
