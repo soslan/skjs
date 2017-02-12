@@ -26,23 +26,9 @@ var element = sk.element;
 
 sk.create = function(arg1, arg2){
   var elem, tag, args;
+  args = sk.args(arguments, 'str? tag, Element? parent, str? cls, args?');
+  elem = document.createElement( args.tag || 'div' );
 
-  if( arguments.length === 1 && typeof arg1 === "object" ){
-    args = arg1 || {};
-    tag = args.tag || args.tagName || 'div';
-  }
-  else if(typeof arg1 === "string"){
-    tag = arg1;
-    args = arg2;
-  }
-  else if(arg1 == null){
-    tag = 'div';
-    args = arg2;
-  }
-  else{
-    throw("sk.create(): wrong arguments.");
-  }
-  elem = document.createElement( tag );
   return args ? sk.init(elem, args) : elem;
 }
 
@@ -79,80 +65,87 @@ sk.query = function(arg1, arg2, arg3){
 
 element.init = function(arg1, args){
   var w = args.window || window;
+  var i;
   var parent = args.parent || args.appendTo;
   var classes = args.classes || args.className || args.cls || args.class;
-  var attributes = args.attributes || args.attr;
+  
   var elem;
   sk.withElementDo(arg1, function(result){
     elem = result;
   });
 
-  if ( args.id === true ) {
-    elem.id = 'sk-' + elem.tagName.toLowerCase() + '-' + ++idCount;
-  }
-  else{
-    sk.withStringDo(args.id, function(id){
-      elem.id = id;
-    });
-  }
-
-  element.addClass(elem, classes);
-
-  if ( args.content instanceof w.Node ) {
-    elem.appendChild( args.content );
-  } else if ( args.content != null ) {
-    withStringDo( args.content, function(val){
-      elem.textContent = val;
-    });
-  }
-  var parent = args.parent || args.appendTo;
-  if(parent instanceof Object && typeof parent.skHandleChild === "function"){
-    parent.skHandleChild(elem);
-  }
-  else{
-    sk.withElementDo(args.parent || args.appendTo, function(parent){
-      parent.appendChild(elem);
-    });
-  }
-
-  if ( typeof attributes === "object" ) {
-    for ( var key in attributes ) {
-      sk.withStringDo(attributes[ key ], function(val){
-        elem.setAttribute(key, val);
-      });
+  for(i in args){
+    if(i in _argHandlers['*']){
+      _argHandlers['*'][i](elem, args);
     }
   }
 
-  args.style = args.styles || args.style;
-  element.style(elem, args.style || args.styles);
-
-  if ( typeof args.action === "function" ) {
-    // TODO: Touch events
-    elem.addEventListener( "click", args.action );
-  }
-
-  args.listeners = args.listeners || args.events;
-
-  sk.withEachDo(args.listeners, function(listener, ev){
-    elem.addEventListener( ev, function(e){
-      if ( typeof listener === "function" ) {
-        listener(e);
-      }
-    });
-  });
-
-  // if ( typeof args.listeners === "object" ) {
-  //   for ( var i in args.listeners ) {
-  //     elem.addEventListener( i, function(e){
-  //       if ( typeof args.listeners[i] === "function" ) {
-  //         args.listeners[i](e);
-  //       }
-  //     });
-  //   }
-  // }
-
   return elem;
 };
+
+var _argHandlers = {};
+_argHandlers['*'] = {
+  id: function(elem, args){
+    if ( args.id === true ) {
+      elem.id = 'sk-' + elem.tagName.toLowerCase() + '-' + ++idCount;
+    }
+    else{
+      sk.withStringDo(args.id, function(id){
+        elem.id = id;
+      });
+    }
+  },
+  cls: function(elem, args){
+    sk.cls(elem, args['cls']);
+  },
+  content: function(elem, args){
+    if ( args.content instanceof Node ) {
+      elem.appendChild( args.content );
+    } else if ( args.content != null ) {
+      withStringDo( args.content, function(val){
+        elem.textContent = val;
+      });
+    }
+  },
+  parent: function(elem, args){
+    var parent = args.parent || args.appendTo;
+    if(parent instanceof Object && typeof parent.skHandleChild === "function"){
+      parent.skHandleChild(elem);
+    }
+    else{
+      sk.withElementDo(args.parent || args.appendTo, function(parent){
+        parent.appendChild(elem);
+      });
+    }
+  },
+  attr: function(elem, args){
+    var attributes = args.attributes || args.attr;
+    if ( typeof attributes === "object" ) {
+      for ( var key in attributes ) {
+        sk.withStringDo(attributes[ key ], function(val){
+          elem.setAttribute(key, val);
+        });
+      }
+    }
+  },
+  css: function(elem, args){
+    var css = args.css || args.styles || args.style;
+    element.style(elem, css);
+  },
+  action: function(elem, args){
+    if ( typeof args.action === "function" ) {
+      // TODO: Touch events
+      elem.addEventListener( "click", args.action );
+    }
+  },
+  listeners: function(elem, args){
+    var listeners = args.listeners || args.events;
+
+    sk.each(listeners, function(listener, event){
+      elem.addEventListener( event, listener);
+    });
+  }
+}
 
 element.addClass = function(elem, arg1) {
   var saved;
@@ -338,14 +331,14 @@ var apply = function(arg1, args) {
   element.init(arg1, args);
 };
 
-var span = function(args){
-  args = args || {};
+var span = function(){
+  var args = sk.args(arguments, 'str? content, Node? parent, args?');
   args.tag = 'span';
-  return element(args);
+  return sk.create(args);
 };
 
-var div = function(args){
-  args = args || {};
+var div = function(){
+  var args = sk.args(arguments, 'Node? parent, args?');
   args.tag = 'div';
   return element(args);
 };
