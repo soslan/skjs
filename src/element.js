@@ -80,6 +80,15 @@ element.init = function(arg1, args){
     }
   }
 
+  if(_argHandlers[elem.tagName]){
+    var tag = elem.tagName;
+    for(i in args){
+      if(i in _argHandlers[tag]){
+        _argHandlers[tag][i](elem, args);
+      }
+    }
+  }
+
   return elem;
 };
 
@@ -144,6 +153,63 @@ _argHandlers['*'] = {
     sk.each(listeners, function(listener, event){
       elem.addEventListener( event, listener);
     });
+  },
+  title: function(elem, args){
+    elem.title = args.title;
+  },
+  accessKey: function(elem, args){
+    elem.accessKey = args.accessKey;
+  },
+  dir: function(elem, args){
+    elem.dir = args.dir;
+  },
+  editable: function(elem, args){
+    elem.contentEditable = args.editable;
+  },
+  lang: function(elem, args){
+    elem.lang = args.lang;
+  },
+  tabIndex: function(elem, args){
+    elem.tabIndex = args.tabIndex;
+  },
+  html: function(elem, args){
+    elem.innerHTML = args.html;
+  }
+}
+
+_argHandlers['A'] = {
+  href: function(elem, args){
+    elem.href = args.href;
+  },
+  target: function(elem, args){
+    elem.target = args.target;
+  },
+  rel: function(elem, args){
+    elem.rel = args.rel;
+  },
+  type: function(elem, args){
+    elem.type = args.type;
+  },
+}
+
+_argHandlers['INPUT'] = {
+  type: function(elem, args){
+    elem.type = args.type;
+  },
+  name: function(elem, args){
+    elem.name = args.name;
+  },
+  disabled: function(elem, args){
+    elem.disabled = args.disabled;
+  },
+  required: function(elem, args){
+    elem.required = args.required;
+  },
+  value: function(elem, args){
+    elem.value = args.value;
+  },
+  autofocus: function(elem, args){
+    elem.autofocus = args.autofocus;
   }
 }
 
