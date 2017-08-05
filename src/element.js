@@ -74,10 +74,18 @@ element.init = function(arg1, args){
     elem = result;
   });
 
+  //
   // Node interface handlers
+  //
 
+  // Parent handler 
   var parent = args.insertIn || args.parent || args.appendTo;
   parent.insertBefore( parent, args.insertBefore || null );
+
+  // Children handler
+  args.children.forEach(function(child){
+    elem.appendChild(child);
+  });
 
   for(i in args){
     if(i in _argHandlers['*']){
