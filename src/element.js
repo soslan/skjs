@@ -82,6 +82,11 @@ element.init = function(arg1, args){
   var parent = args.insertIn || args.parent || args.appendTo;
   parent.insertBefore( parent, args.insertBefore || null );
 
+  // textContent handler
+  if(args.text !== undefined){
+    elem.textContent = args.text;
+  }
+
   // Children handler
   args.children.forEach(function(child){
     elem.appendChild(child);
