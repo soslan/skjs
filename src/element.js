@@ -80,17 +80,21 @@ element.init = function(arg1, args){
 
   // Parent handler 
   var parent = args.insertIn || args.parent || args.appendTo;
-  parent.insertBefore( parent, args.insertBefore || null );
-
+  if(parent !== undefined){
+    parent.insertBefore( elem, args.insertBefore || null );
+  }
+  
   // textContent handler
   if(args.text !== undefined){
     elem.textContent = args.text;
   }
 
   // Children handler
-  args.children.forEach(function(child){
-    elem.appendChild(child);
-  });
+  if(args.children !== undefined){
+    args.children.forEach(function(child){
+      elem.appendChild(child);
+    });
+  }
 
   for(i in args){
     if(i in _argHandlers['*']){
