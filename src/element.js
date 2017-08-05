@@ -74,6 +74,11 @@ element.init = function(arg1, args){
     elem = result;
   });
 
+  // Node interface handlers
+
+  var parent = args.insertIn || args.parent || args.appendTo;
+  parent.insertBefore( parent, args.insertBefore || null );
+
   for(i in args){
     if(i in _argHandlers['*']){
       _argHandlers['*'][i](elem, args);
@@ -113,17 +118,6 @@ _argHandlers['*'] = {
     } else if ( args.content != null ) {
       withStringDo( args.content, function(val){
         elem.textContent = val;
-      });
-    }
-  },
-  parent: function(elem, args){
-    var parent = args.parent || args.appendTo;
-    if(parent instanceof Object && typeof parent.skHandleChild === "function"){
-      parent.skHandleChild(elem);
-    }
-    else{
-      sk.withElementDo(args.parent || args.appendTo, function(parent){
-        parent.appendChild(elem);
       });
     }
   },
