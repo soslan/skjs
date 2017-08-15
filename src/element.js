@@ -161,7 +161,14 @@ sk.element = function(arg1, arg2){
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 //
 sk.html = function(args){
-  return args.elem;
+  var element = args.element;
+
+  if(args.editable !== undefined){
+    element.contentEditable = args.editable;
+  }
+
+  sk.element(args);
+  return args.element;
 }
 
 element.init = sk.element;
