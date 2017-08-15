@@ -63,22 +63,29 @@ sk.query = function(arg1, arg2, arg3){
   return args ? sk.init(elem, args) : elem;
 }
 
-element.init = function(arg1, args){
-  var w = args.window || window;
-  var i;
-  var parent = args.parent || args.appendTo;
-  var classes = args.classes || args.className || args.cls || args.class;
-  
-  var elem;
-  sk.withElementDo(arg1, function(result){
-    elem = result;
-  });
+// EventTarget interface
+sk.eventTarget = function(args){
+  var elem = args.element;
+  var listeners = args.listeners || args.events;
+  if(listeners !== undefined){
+    sk.each(listeners, function(listener, event){
+      elem.addEventListener( event, listener);
+    });
+  }
+  if(args.removeListeners !== undefined){
+    sk.each(args.listeners, function(listener, event){
+      elem.removeEventListener( event, listener);
+    });
+  }
+}
 
-  //
-  // Node interface handlers
-  //
-
+//
+// Node interface handlers
+// https://developer.mozilla.org/en-US/docs/Web/API/Node
+//
+sk.node = function(args){
   // Parent handler 
+  var elem = args.element;
   var parent = args.insertIn || args.parent || args.appendTo;
   if(parent !== undefined){
     parent.insertBefore( elem, args.insertBefore || null );
@@ -96,6 +103,39 @@ element.init = function(arg1, args){
     });
   }
 
+  //nodeValue
+  if(args.nodeValue !== undefined){
+    elem.nodeValue = args.nodeValue;
+  } 
+
+  return sk.eventTarget(args);
+}
+
+//
+// Element interface handlers
+// https://developer.mozilla.org/en-US/docs/Web/API/Element
+//
+sk.element = function(arg1, arg2){
+  var args;
+  var i;
+  var elem;
+  if(arguments.length === 1){
+    args = arg1;
+    elem = args.element; 
+  }
+  else if(arguments.length > 1){
+    args = arg2;
+    elem = arg1;
+  }
+  else{
+    args = {};
+  }
+
+  sk.withElementDo(arg1, function(result){
+    elem = result;
+    args.element = elem;
+  });
+
   for(i in args){
     if(i in _argHandlers['*']){
       _argHandlers['*'][i](elem, args);
@@ -111,10 +151,27 @@ element.init = function(arg1, args){
     }
   }
 
+  sk.node(args);
+
   return elem;
 };
 
+//
+// HTMLElement interface
+// https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
+//
+sk.html = function(args){
+  return args.elem;
+}
+
+element.init = sk.element;
+
 var _argHandlers = {};
+_argHandlers['Node'] = {
+  insertIn: function(elem, args){
+    
+  }
+}
 _argHandlers['*'] = {
   id: function(elem, args){
     if ( args.id === true ) {
@@ -158,13 +215,13 @@ _argHandlers['*'] = {
       elem.addEventListener( "click", args.action );
     }
   },
-  listeners: function(elem, args){
-    var listeners = args.listeners || args.events;
+  // listeners: function(elem, args){
+  //   var listeners = args.listeners || args.events;
 
-    sk.each(listeners, function(listener, event){
-      elem.addEventListener( event, listener);
-    });
-  },
+  //   sk.each(listeners, function(listener, event){
+  //     elem.addEventListener( event, listener);
+  //   });
+  // },
   title: function(elem, args){
     elem.title = args.title;
   },
@@ -223,6 +280,20 @@ _argHandlers['INPUT'] = {
     elem.autofocus = args.autofocus;
   }
 }
+
+
+//
+// SVGElement interface
+// https://developer.mozilla.org/en-US/docs/Web/API/SVGElement
+//
+var svg = function(args){
+  args = args || {};
+  args.namespace = 'http://www.w3.org/2000/svg';
+  if(args.tag == null){
+    args.tag = 'svg';
+  }
+  return element(args);
+};
 
 element.addClass = function(elem, arg1) {
   var saved;
@@ -417,15 +488,6 @@ var span = function(){
 var div = function(){
   var args = sk.args(arguments, 'Node? parent, args?');
   args.tag = 'div';
-  return element(args);
-};
-
-var svg = function(args){
-  args = args || {};
-  args.namespace = 'http://www.w3.org/2000/svg';
-  if(args.tag == null){
-    args.tag = 'svg';
-  }
   return element(args);
 };
 
