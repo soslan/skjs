@@ -136,19 +136,30 @@ sk.element = function(arg1, arg2){
     args.element = elem;
   });
 
-  for(i in args){
-    if(i in _argHandlers['*']){
-      _argHandlers['*'][i](elem, args);
+  var attributes = args.attributes || args.attr;
+  if ( typeof attributes === "object" ) {
+    for ( var key in attributes ) {
+      sk.withStringDo(attributes[ key ], function(val){
+        elem.setAttribute(key, val);
+      });
     }
   }
 
-  if(_argHandlers[elem.tagName]){
-    var tag = elem.tagName;
-    for(i in args){
-      if(i in _argHandlers[tag]){
-        _argHandlers[tag][i](elem, args);
-      }
-    }
+  if(args.cls !== undefined){
+    sk.cls(elem, args.cls);
+  }
+
+  if ( args.id === true ) {
+    elem.id = 'sk-' + elem.tagName.toLowerCase() + '-' + ++idCount;
+  }
+  else if(args.id !== undefined){
+    sk.withStringDo(args.id, function(id){
+      elem.id = id;
+    });
+  }
+
+  if(args.innerHTML!==undefined){
+    elem.innerHTML = args.innerHTML;
   }
 
   sk.node(args);
@@ -180,19 +191,6 @@ _argHandlers['Node'] = {
   }
 }
 _argHandlers['*'] = {
-  id: function(elem, args){
-    if ( args.id === true ) {
-      elem.id = 'sk-' + elem.tagName.toLowerCase() + '-' + ++idCount;
-    }
-    else{
-      sk.withStringDo(args.id, function(id){
-        elem.id = id;
-      });
-    }
-  },
-  cls: function(elem, args){
-    sk.cls(elem, args['cls']);
-  },
   content: function(elem, args){
     if ( args.content instanceof Node ) {
       elem.appendChild( args.content );
@@ -200,16 +198,6 @@ _argHandlers['*'] = {
       withStringDo( args.content, function(val){
         elem.textContent = val;
       });
-    }
-  },
-  attr: function(elem, args){
-    var attributes = args.attributes || args.attr;
-    if ( typeof attributes === "object" ) {
-      for ( var key in attributes ) {
-        sk.withStringDo(attributes[ key ], function(val){
-          elem.setAttribute(key, val);
-        });
-      }
     }
   },
   css: function(elem, args){
@@ -237,9 +225,6 @@ _argHandlers['*'] = {
   },
   dir: function(elem, args){
     elem.dir = args.dir;
-  },
-  editable: function(elem, args){
-    elem.contentEditable = args.editable;
   },
   lang: function(elem, args){
     elem.lang = args.lang;
