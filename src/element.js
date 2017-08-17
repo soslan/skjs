@@ -1,5 +1,5 @@
 var idCount=0;
-sk.element = function(arg1, arg2, arg3){
+sk.global = function(arg1, arg2, arg3){
   var args, elem;
   args = sk.args(arguments,
     'str element, Element? parent, args?',
@@ -22,7 +22,7 @@ sk.element = function(arg1, arg2, arg3){
   }
 };
 
-var element = sk.element;
+var element = sk.global;
 
 sk.create = function(arg1, arg2){
   var elem, tag, args;
@@ -106,7 +106,15 @@ sk.node = function(args){
   //nodeValue
   if(args.nodeValue !== undefined){
     elem.nodeValue = args.nodeValue;
-  } 
+  }
+
+  if ( args.content instanceof Node ) {
+    elem.appendChild( args.content );
+  } else if ( args.content != null ) {
+    withStringDo( args.content, function(val){
+      elem.textContent = val;
+    });
+  }
 
   return sk.eventTarget(args);
 }
@@ -160,6 +168,11 @@ sk.element = function(arg1, arg2){
 
   if(args.innerHTML!==undefined){
     elem.innerHTML = args.innerHTML;
+  }
+
+  if ( typeof args.action === "function" ) {
+    // TODO: Touch events
+    elem.addEventListener( "click", args.action );
   }
 
   sk.node(args);
@@ -489,7 +502,6 @@ var path = function(args){
   return svg(args);
 };
 
-sk.element = element;
 sk.init = element.init;
 sk.div = div;
 sk.span = span;

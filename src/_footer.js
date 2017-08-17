@@ -1,1 +1,1 @@
-})(window.sk = function(){return sk.element.apply(this, arguments);});
+})(window.sk = function(){return sk.global.apply(this, arguments);});
