@@ -139,10 +139,16 @@ sk.element = function(arg1, arg2){
     args = {};
   }
 
-  sk.withElementDo(arg1, function(result){
-    elem = result;
-    args.element = elem;
-  });
+  if(args.element !== undefined){
+    sk.withElementDo(elem, function(result){
+      elem = result;
+      args.element = elem;
+    });
+  }
+  else{
+    args.element = document.createElement( args.tag || 'div' );
+    elem = args.element;
+  }
 
   var attributes = args.attributes || args.attr;
   if ( typeof attributes === "object" ) {
@@ -185,13 +191,13 @@ sk.element = function(arg1, arg2){
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 //
 sk.html = function(args){
+  args.element = sk.element(args);
   var element = args.element;
 
   if(args.editable !== undefined){
     element.contentEditable = args.editable;
   }
 
-  sk.element(args);
   return args.element;
 }
 
@@ -204,24 +210,9 @@ _argHandlers['Node'] = {
   }
 }
 _argHandlers['*'] = {
-  content: function(elem, args){
-    if ( args.content instanceof Node ) {
-      elem.appendChild( args.content );
-    } else if ( args.content != null ) {
-      withStringDo( args.content, function(val){
-        elem.textContent = val;
-      });
-    }
-  },
   css: function(elem, args){
     var css = args.css || args.styles || args.style;
     element.style(elem, css);
-  },
-  action: function(elem, args){
-    if ( typeof args.action === "function" ) {
-      // TODO: Touch events
-      elem.addEventListener( "click", args.action );
-    }
   },
   // listeners: function(elem, args){
   //   var listeners = args.listeners || args.events;
@@ -245,9 +236,6 @@ _argHandlers['*'] = {
   tabIndex: function(elem, args){
     elem.tabIndex = args.tabIndex;
   },
-  html: function(elem, args){
-    elem.innerHTML = args.html;
-  }
 }
 
 _argHandlers['A'] = {
