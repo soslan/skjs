@@ -128,11 +128,11 @@ sk.element = function(arg1, arg2){
   var i;
   var elem;
   if(arguments.length === 1){
-    args = arg1;
+    args = arg1 || {};
     elem = args.element; 
   }
   else if(arguments.length > 1){
-    args = arg2;
+    args = arg2 || {};
     elem = arg1;
   }
   else{
@@ -191,11 +191,37 @@ sk.element = function(arg1, arg2){
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 //
 sk.html = function(args){
+  args = args || {};
   args.element = sk.element(args);
   var element = args.element;
 
   if(args.editable !== undefined){
     element.contentEditable = args.editable;
+  }
+
+  var css = args.css || args.styles || args.style;
+  if(css !== undefined){
+    sk.style(element, css);
+  }
+
+  if(args.title !== undefined){
+    element.title = args.title;
+  }
+
+  if(args.accessKey !== undefined){
+    element.accessKey = args.accessKey;
+  }
+
+  if(args.dir !== undefined){
+    element.dir = args.dir;
+  }
+
+  if(args.lang !== undefined){
+    element.lang = args.lang;
+  }
+
+  if(args.tabIndex !== undefined){
+    element.tabIndex = args.tabIndex;
   }
 
   return args.element;
@@ -204,39 +230,6 @@ sk.html = function(args){
 element.init = sk.element;
 
 var _argHandlers = {};
-_argHandlers['Node'] = {
-  insertIn: function(elem, args){
-    
-  }
-}
-_argHandlers['*'] = {
-  css: function(elem, args){
-    var css = args.css || args.styles || args.style;
-    element.style(elem, css);
-  },
-  // listeners: function(elem, args){
-  //   var listeners = args.listeners || args.events;
-
-  //   sk.each(listeners, function(listener, event){
-  //     elem.addEventListener( event, listener);
-  //   });
-  // },
-  title: function(elem, args){
-    elem.title = args.title;
-  },
-  accessKey: function(elem, args){
-    elem.accessKey = args.accessKey;
-  },
-  dir: function(elem, args){
-    elem.dir = args.dir;
-  },
-  lang: function(elem, args){
-    elem.lang = args.lang;
-  },
-  tabIndex: function(elem, args){
-    elem.tabIndex = args.tabIndex;
-  },
-}
 
 _argHandlers['A'] = {
   href: function(elem, args){
