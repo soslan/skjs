@@ -267,6 +267,17 @@ _argHandlers['INPUT'] = {
   }
 }
 
+sk.span = function(){
+  var args = sk.args(arguments, 'str? content, Node? parent, args?');
+  args.tag = 'span';
+  return sk.html(args);
+};
+
+sk.div = function(){
+  var args = sk.args(arguments, 'Node? parent, args?');
+  args.tag = 'div';
+  return sk.html(args);
+};
 
 //
 // SVGElement interface
@@ -465,18 +476,6 @@ var apply = function(arg1, args) {
   element.init(arg1, args);
 };
 
-var span = function(){
-  var args = sk.args(arguments, 'str? content, Node? parent, args?');
-  args.tag = 'span';
-  return sk.create(args);
-};
-
-var div = function(){
-  var args = sk.args(arguments, 'Node? parent, args?');
-  args.tag = 'div';
-  return element(args);
-};
-
 var path = function(args){
   args = args || {};
   args.tag = 'path';
@@ -484,8 +483,6 @@ var path = function(args){
 };
 
 sk.init = element.init;
-sk.div = div;
-sk.span = span;
 sk.svg = svg;
 sk.path = path;
 sk.apply = apply;
