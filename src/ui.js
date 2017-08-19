@@ -1,5 +1,15 @@
 var skui = {}
 
+skui.Component = function(){
+	this.element = sk.div();
+	this.container = this.element;
+	return this;
+}
+
+skui.component = function(){
+	return new skui.Component();
+}
+
 skui.section = function(cArgs){
 	var container = {};
 	container.container = sk.c('div', cArgs);
