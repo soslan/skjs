@@ -158,9 +158,9 @@ sk.element = function(arg1, arg2){
       });
     }
   }
-
-  if(args.cls !== undefined){
-    sk.cls(elem, args.cls);
+  var cls = args.cls || args.classes;
+  if(cls !== undefined){
+    sk.cls(elem, cls);
   }
 
   if ( args.id === true ) {
