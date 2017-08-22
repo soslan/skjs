@@ -111,7 +111,7 @@ sk.node = function(args){
   if ( args.content instanceof Node ) {
     elem.appendChild( args.content );
   } else if ( args.content != null ) {
-    withStringDo( args.content, function(val){
+    sk.any( args.content, function(val){
       elem.textContent = val;
     });
   }
@@ -153,7 +153,7 @@ sk.element = function(arg1, arg2){
   var attributes = args.attributes || args.attr;
   if ( typeof attributes === "object" ) {
     for ( var key in attributes ) {
-      sk.withStringDo(attributes[ key ], function(val){
+      sk.any(attributes[ key ], function(val){
         elem.setAttribute(key, val);
       });
     }
@@ -167,7 +167,7 @@ sk.element = function(arg1, arg2){
     elem.id = 'sk-' + elem.tagName.toLowerCase() + '-' + ++idCount;
   }
   else if(args.id !== undefined){
-    sk.withStringDo(args.id, function(id){
+    sk.any(args.id, function(id){
       elem.id = id;
     });
   }
@@ -303,7 +303,7 @@ element.addClass = function(elem, arg1) {
     });
   }
   else {
-    sk.withStringDo(arg1, function(val){
+    sk.any(arg1, function(val){
       val = val.trim();
       if(val != ''){
         val.split(" ").forEach(function(cls){
@@ -356,7 +356,7 @@ element.setOneStyle = function(elem, property, value){
       properties.push('ms' + capProperty);
       properties.push('o' + capProperty);
     }
-    withStringDo(value, function(val){
+    sk.any(value, function(val){
       if(typeof mod.filter === "function"){
         val = mod.filter(val);
       }
@@ -366,7 +366,7 @@ element.setOneStyle = function(elem, property, value){
     });
   }
   else{
-    withStringDo(value, function(val){
+    sk.any(value, function(val){
       elem.style[property] = val;
     });
   }

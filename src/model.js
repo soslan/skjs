@@ -107,16 +107,14 @@ Model.prototype.prop = function(prop, val){
 Model.prototype.property = Model.prototype.prop;
 
 function withAnyDo(value, callback){
-  if(value instanceof Model){
+  if(value.isSkModel){
     value.listen(function(e){
       var val = e.value;
       callback(val);
     });
   }
   else{
-    if (typeof callback === "function"){
-      callback(value);
-    }
+    callback(value);
   }
 }
 
@@ -167,6 +165,10 @@ function withBooleanDo(value, callback){
 
 sk.model = model;
 sk.withBooleanDo = withBooleanDo;
+sk.bool = withBooleanDo;
 sk.withStringDo = withStringDo;
+sk.str = withStringDo;
 sk.withNumberDo = withNumberDo;
+sk.num = withNumberDo;
 sk.withAnyDo = withAnyDo;
+sk.any = withAnyDo;
