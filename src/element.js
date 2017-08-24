@@ -1,4 +1,6 @@
 var idCount=0;
+var scopeNode;
+var savedScopeNodes = [];
 sk.global = function(arg1, arg2, arg3){
   var args, elem;
   args = sk.args(arguments,
@@ -86,7 +88,7 @@ sk.eventTarget = function(args){
 sk.node = function(args){
   // Parent handler 
   var elem = args.element;
-  var parent = args.insertIn || args.parent || args.appendTo;
+  var parent = args.insertIn || args.parent || args.appendTo || scopeNode;
   if(parent !== undefined){
     parent.insertBefore( elem, args.insertBefore || null );
   }
@@ -114,6 +116,19 @@ sk.node = function(args){
     sk.any( args.content, function(val){
       elem.textContent = val;
     });
+  }
+
+  if ( args.scope !== undefined ){
+    savedScopeNodes.push(scopeNode);
+    scopeNode = elem;
+    try{
+      args.scope();
+    }
+    catch(e){
+      scopeNode = savedScopeNodes.pop();
+      throw e;
+    }
+    scopeNode = savedScopeNodes.pop();
   }
 
   return sk.eventTarget(args);
