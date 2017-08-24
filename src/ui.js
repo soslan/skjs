@@ -1,4 +1,5 @@
 var skui = {}
+sk.ui = skui;
 
 skui.Component = function(){
 	this.element = sk.div();
@@ -33,18 +34,19 @@ skui.section = function(cArgs){
 skui.window = function(){
 	var args = sk.args(arguments, 'str title, num? level, args?');
 	var wind = {};
-	wind.container = sk.c('div');
+	wind.container = sk.div(args);
+	wind.container.classList.add('skui-wind');
 	wind.element = wind.container;
 	wind.container.classList.add('window');
 	wind.header = sk.c('div', {
-		cls: 'header',
+		cls: 'header skui-wind-header',
 		parent: wind.container,
 	});
-	wind.actions = sk.c('div', wind.header);
-	wind.title = sk.c('h' + (args.level || 2), wind.header, 'title', {content: args.title || 'Window'});
-	wind.toolbar = sk.c('div', wind.element, 'toolbar');
-	wind.body = sk.c('div', wind.element, 'body');
-	wind.footer = sk.c('div', wind.element, 'footer');
+	wind.actions = sk.c('div', wind.header, 'skui-wind-actions');
+	wind.title = sk.c('h' + (args.level || 2), wind.header, 'skui-wind-title title', {content: args.title || 'Window'});
+	wind.toolbar = sk.c('div', wind.element, 'toolbar skui-wind-toolbar');
+	wind.body = sk.c('div', wind.element, 'body skui-wind-body');
+	wind.footer = sk.c('div', wind.element, 'footer skui-wind-footer');
 	return wind;
 }
 
@@ -216,4 +218,40 @@ skui.menu = function(){
 	return menu;
 }
 
-sk.ui = skui;
+sk.ui.admin = function(args){
+	var admin = {};
+	admin.element = sk.div(args);
+	admin.element.classList.add('skui-admin');
+	admin.header = sk.div({
+		parent: admin.element,
+		cls: 'skui-admin-header'
+	});
+	admin.body = sk.div({
+		parent: admin.element,
+		cls: 'skui-admin-body',
+	})
+	admin.navigation = sk.div({
+		parent: admin.body,
+		cls: 'skui-admin-nav',
+	});
+	admin.main = sk.ui.scenes({
+		parent: admin.body,
+		cls: 'skui-admin-main',
+	});
+	admin.footer = sk.div({
+		parent: admin.element,
+		cls: 'skui-admin-footer'
+	});
+
+	admin.menu = sk.ui.scenes({
+		parent: admin.navigation,
+	});
+
+	admin.brand = sk.span({
+		parent: admin.header,
+		cls: 'skui-admin-brand',
+		text: args.brandName || '',
+	});
+
+	return admin;
+}
