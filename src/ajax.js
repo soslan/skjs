@@ -4,6 +4,9 @@ sk.ajax = function(args){
   var queryString;
   var method = args.method ? args.method.toUpperCase() : 'GET';
   if(method === 'POST'){
+    if(args.successCodes === undefined){
+      args.successCodes = [201];
+    }
     if(typeof args.args === 'object'){
       var form = new FormData();
       for(var i in args.args){
@@ -18,7 +21,9 @@ sk.ajax = function(args){
   }
   else if(method === 'GET' && typeof args.args === 'object'){
     url = url + getQueryString(args.args);
+    args.successCodes = [200];
   }
+  var successCodes = [];
   var req = new XMLHttpRequest();
   req.open(method, url);
   if(typeof args.load === 'function'){
@@ -35,14 +40,24 @@ sk.ajax = function(args){
   }
   if(typeof args.success === 'function'){
     req.addEventListener('load', function(e){
-      //console.log(e);
-      if(req.status === 200){
-        args.success(req.response);
+      if(args.successCodes.indexOf(req.status) === -1){
+        return;
       }
+      args.success(req.response);
     });
   }
   req.send(content);
 };
+
+sk.ajax.post = function(args){
+  args.method = 'post';
+  return sk.ajax(args);
+}
+
+sk.ajax.get = function(args){
+  args.method = 'get';
+  return sk.ajax(args);
+}
 
 var getQueryString = function(args){
   var queryString = '?';
