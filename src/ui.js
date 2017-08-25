@@ -91,6 +91,30 @@ skui.scenes = function(cArgs){
 	return self;
 }
 
+sk.ui.field = function(args){
+	var field = {};
+	field.element = sk.div(args);
+	field.element.classList.add('skui-field');
+
+	field.header = sk.div({
+		parent: field.element,
+		cls: 'skui-field-header',
+	});
+
+	field.body = sk.div({
+		parent: field.element,
+		cls: 'skui-field-body',
+	});
+
+	field.label = sk.html({
+		tag: 'label',
+		parent: field.header,
+		cls: 'skui-field-label',
+		text: args.label,
+	});
+	return field;
+}
+
 skui.controlContainer = function(args, label){
 	var out = {
 		container: sk.c('div', args),
